@@ -1,0 +1,13 @@
+#
+# Wavefront material file
+# Created in RealityCapture
+# Engine version v1.3.2.117357
+#
+
+newmtl MAHS-IDN-MLK-MLT-BDA-S-031-F-0005
+Ka 1 1 1
+Kd 1 1 1
+d 1
+Ns 0
+illum 1
+map_Kd MAHS-IDN-MLK-MLT-BDA-S-031-F-0005_u0_v0_diffuse.jpg

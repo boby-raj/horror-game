@@ -1,0 +1,11 @@
+Model Information:
+* title:	Hospital bed
+* source:	https://sketchfab.com/3d-models/hospital-bed-f2b3a71f48d040069fb144f76a1180d9
+* author:	Mathilde Beuvin (https://sketchfab.com/mat_bvn)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Hospital bed" (https://sketchfab.com/3d-models/hospital-bed-f2b3a71f48d040069fb144f76a1180d9) by Mathilde Beuvin (https://sketchfab.com/mat_bvn) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

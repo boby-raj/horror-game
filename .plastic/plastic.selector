@@ -1,0 +1,4 @@
+repository "try/horror game@13469852172163@cloud"
+  path "/"
+    br "/main"
+    co "/main"
