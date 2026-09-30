@@ -3009,11 +3009,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 1059017472}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 1059017469}
   closesound: {fileID: 1059017469}
   commmonAudio: {fileID: 1059017469}
   opentext: {fileID: 0}
   closetext: {fileID: 0}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!64 &83632981
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -9495,11 +9499,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 325373579}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 325373578}
   closesound: {fileID: 325373578}
   commmonAudio: {fileID: 325373578}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!64 &325373581
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -12308,11 +12316,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 0}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 0}
   closesound: {fileID: 0}
   commmonAudio: {fileID: 0}
   opentext: {fileID: 0}
   closetext: {fileID: 0}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!64 &425217452
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -12834,11 +12846,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 448600648}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 448600646}
   closesound: {fileID: 448600646}
   commmonAudio: {fileID: 448600646}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &448600648
 Animator:
   serializedVersion: 7
@@ -19703,11 +19719,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 0}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 0}
   closesound: {fileID: 0}
   commmonAudio: {fileID: 0}
   opentext: {fileID: 0}
   closetext: {fileID: 0}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &650679231
 Animator:
   serializedVersion: 7
@@ -23324,11 +23344,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 790136584}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 790136582}
   closesound: {fileID: 790136582}
   commmonAudio: {fileID: 790136582}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &790136584
 Animator:
   serializedVersion: 7
@@ -26053,15 +26077,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -78.79321
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -24.403212
+      value: 10.95
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -232.51903
+      value: -37.9
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
       propertyPath: m_LocalRotation.w
@@ -26231,11 +26255,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 0}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 0}
   closesound: {fileID: 0}
   commmonAudio: {fileID: 0}
   opentext: {fileID: 0}
   closetext: {fileID: 0}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &823379989
 Animator:
   serializedVersion: 7
@@ -26794,11 +26822,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 835068839}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 835068837}
   closesound: {fileID: 835068837}
   commmonAudio: {fileID: 835068837}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &835068839
 Animator:
   serializedVersion: 7
@@ -35145,11 +35177,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 1009606549}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 1009606547}
   closesound: {fileID: 1009606547}
   commmonAudio: {fileID: 1009606547}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &1009606549
 Animator:
   serializedVersion: 7
@@ -35407,11 +35443,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 1024837457}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 1024837455}
   closesound: {fileID: 1024837455}
   commmonAudio: {fileID: 1024837455}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &1024837457
 Animator:
   serializedVersion: 7
@@ -37202,11 +37242,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 1059017472}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 1059017469}
   closesound: {fileID: 1059017469}
   commmonAudio: {fileID: 1059017469}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!64 &1059017471
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -45211,11 +45255,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 1296232049}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 1296232047}
   closesound: {fileID: 1296232047}
   commmonAudio: {fileID: 1296232047}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &1296232049
 Animator:
   serializedVersion: 7
@@ -49820,11 +49868,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 0}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 0}
   closesound: {fileID: 0}
   commmonAudio: {fileID: 0}
   opentext: {fileID: 0}
   closetext: {fileID: 0}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!64 &1409124968
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -64751,11 +64803,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 0}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 0}
   closesound: {fileID: 0}
   commmonAudio: {fileID: 0}
   opentext: {fileID: 0}
   closetext: {fileID: 0}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &1780931469
 Animator:
   serializedVersion: 7
@@ -64910,11 +64966,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 0}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 0}
   closesound: {fileID: 0}
   commmonAudio: {fileID: 0}
   opentext: {fileID: 0}
   closetext: {fileID: 0}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &1786642079
 Animator:
   serializedVersion: 7
@@ -66946,11 +67006,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 1818509821}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 1818509820}
   closesound: {fileID: 1818509820}
   commmonAudio: {fileID: 1818509820}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!64 &1818509823
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -70089,11 +70153,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 1940915046}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 1940915044}
   closesound: {fileID: 1940915044}
   commmonAudio: {fileID: 1940915044}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!95 &1940915046
 Animator:
   serializedVersion: 7
@@ -72930,11 +72998,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
   ANI: {fileID: 2020039300}
+  slideDirection: {x: 0, y: 0, z: -0.45}
+  slideSpeed: 3
   opensound: {fileID: 2020039299}
   closesound: {fileID: 2020039299}
   commmonAudio: {fileID: 2020039299}
   opentext: {fileID: 567696382}
   closetext: {fileID: 567696382}
+  highlightOnHover: 0
+  hoverColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!64 &2020039302
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -73242,26 +73314,37 @@ MonoBehaviour:
   m_GameObject: {fileID: 2024162382}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9dab4acf0bfab24394e5e716e3d6418, type: 3}
+  m_Script: {fileID: 11500000, guid: 23d4ccabac802464cb2c5fe437f2c56e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RampFollower
-  player: {fileID: 2086059390}
-  playerController: {fileID: 2086059394}
-  playerMovementScript: {fileID: 1047972685}
-  playerCamera: {fileID: 1047972682}
-  speed: 8
-  rotationSpeed: 12
-  stickToGroundForce: -15
-  groundLayer:
+  m_EditorClassIdentifier: Assembly-CSharp::enemychase
+  currentState: 0
+  targetCharacter: {fileID: 2086059390}
+  detectionRadius: 12
+  catchDistance: 2
+  fieldOfViewAngle: 110
+  obstacleMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  catchDistance: 5
+  eyeHeight: 1.6
+  playerTargetHeight: 1.2
+  detectFlashlight: 1
+  flashlightBonusDistance: 6
+  waypoints: []
+  patrolSpeed: 2
+  chaseSpeed: 4.8
+  waypointWaitTime: 1.5
+  huntPlayerIfNoWaypoints: 1
+  searchDuration: 4
+  searchTurnSpeed: 90
+  isChasingParam: IsChasing
+  isSearchingParam: IsSearching
+  chaseMusicSource: {fileID: 2024162383}
+  jumpscareSource: {fileID: 0}
+  playerCamera: {fileID: 1047972682}
   faceDistance: 1
   vibrationIntensity: 0.25
   vibrationDuration: 1.2
   delayBeforeRespawn: 1
-  chaseAudioSource: {fileID: 2024162383}
-  jumpscareAudioSource: {fileID: 0}
 --- !u!143 &2024162385
 CharacterController:
   m_ObjectHideFlags: 0
