@@ -44,6 +44,10 @@ public class PatrolAndChaseAI : MonoBehaviour
     public float chaseSpeed = 4.8f;
     public float waypointWaitTime = 1.5f;
 
+    [Header("Dynamic Hunting (When No Waypoints)")]
+    [Tooltip("If no waypoints are assigned, enemy hunts / stalks towards player instead of freezing in place.")]
+    public bool huntPlayerIfNoWaypoints = true;
+
     [Header("Investigate / Search State")]
     [Tooltip("How long enemy searches the last known player position before giving up")]
     public float searchDuration = 4.0f;
@@ -66,11 +70,11 @@ public class PatrolAndChaseAI : MonoBehaviour
     public float vibrationDuration = 1.2f;
     public float delayBeforeRespawn = 1.0f;
 
-    private NavMeshAgent agent;
-    private CharacterController characterController;
-    private Animator animator;
-    private CharacterController playerController;
-    private MonoBehaviour playerMovementScript;
+    protected NavMeshAgent agent;
+    protected CharacterController characterController;
+    protected Animator animator;
+    protected CharacterController playerController;
+    protected MonoBehaviour playerMovementScript;
 
     private int currentWaypointIndex = 0;
     private float waitTimer = 0f;
@@ -80,7 +84,7 @@ public class PatrolAndChaseAI : MonoBehaviour
     private Vector3 currentDestination;
     private float verticalVelocity = 0f;
 
-    void Awake()
+    protected virtual void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         if (agent == null) agent = GetComponentInChildren<NavMeshAgent>();
@@ -97,29 +101,49 @@ public class PatrolAndChaseAI : MonoBehaviour
     void Start()
     {
         FindPlayerReferences();
-
-        // If NavMeshAgent is present, try snapping to nearest NavMesh surface
-        if (agent != null)
-        {
-            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5.0f, NavMesh.AllAreas))
-            {
-                agent.Warp(hit.position);
-            }
-        }
+        ValidateNavMeshStatus();
     }
 
     void OnEnable()
     {
         hasCaughtPlayer = false;
         currentState = AIState.Patrol;
+        ValidateNavMeshStatus();
+        SetNextWaypointDestination();
+    }
 
-        if (agent != null && agent.isOnNavMesh)
+    private void ValidateNavMeshStatus()
+    {
+        if (agent == null) return;
+
+        bool onMesh = false;
+        try
         {
-            agent.enabled = true;
-            agent.speed = patrolSpeed;
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
+            {
+                agent.enabled = true;
+                agent.Warp(hit.position);
+                onMesh = agent.isOnNavMesh;
+            }
+            else
+            {
+                onMesh = agent.isOnNavMesh;
+            }
+        }
+        catch
+        {
+            onMesh = false;
         }
 
-        SetNextWaypointDestination();
+        // If not on baked NavMesh, disable agent so it does NOT freeze the GameObject's position!
+        if (!onMesh && agent.enabled)
+        {
+            agent.enabled = false;
+        }
+        else if (onMesh && !agent.enabled)
+        {
+            agent.enabled = true;
+        }
     }
 
     private void FindPlayerReferences()
@@ -229,12 +253,23 @@ public class PatrolAndChaseAI : MonoBehaviour
             }
         }
 
-        if (Physics.Raycast(eyePos, directionToPlayer, out RaycastHit hit, effectiveRadius, obstacleMask))
+        RaycastHit[] hits = Physics.RaycastAll(eyePos, directionToPlayer, effectiveRadius, obstacleMask);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (var hit in hits)
         {
+            if (hit.transform == transform || hit.transform.IsChildOf(transform))
+                continue;
+
+            if (hit.collider.isTrigger)
+                continue;
+
             if (hit.transform == targetCharacter || hit.transform.IsChildOf(targetCharacter))
             {
                 return true;
             }
+
+            // Solid obstacle hit
             return false;
         }
 
@@ -256,7 +291,15 @@ public class PatrolAndChaseAI : MonoBehaviour
 
     private void PatrolLogic()
     {
-        if (waypoints == null || waypoints.Length == 0) return;
+        if (waypoints == null || waypoints.Length == 0 || waypoints[0] == null)
+        {
+            if (huntPlayerIfNoWaypoints && targetCharacter != null)
+            {
+                // Stalk towards player's position
+                MoveTo(targetCharacter.position, patrolSpeed);
+            }
+            return;
+        }
 
         float dist = GetDistanceTo(currentDestination);
         if (dist <= 0.8f)
@@ -290,11 +333,8 @@ public class PatrolAndChaseAI : MonoBehaviour
         lastKnownPlayerPosition = targetCharacter.position;
         MoveTo(targetCharacter.position, chaseSpeed);
 
-        if (animator != null)
-        {
-            animator.SetBool(isChasingParam, true);
-            if (!string.IsNullOrEmpty(isSearchingParam)) animator.SetBool(isSearchingParam, false);
-        }
+        SetAnimBool(isChasingParam, true);
+        SetAnimBool(isSearchingParam, false);
 
         if (chaseMusicSource != null && !chaseMusicSource.isPlaying)
         {
@@ -310,11 +350,8 @@ public class PatrolAndChaseAI : MonoBehaviour
         currentDestination = lastKnownPlayerPosition;
         MoveTo(lastKnownPlayerPosition, patrolSpeed * 1.3f);
 
-        if (animator != null)
-        {
-            animator.SetBool(isChasingParam, false);
-            if (!string.IsNullOrEmpty(isSearchingParam)) animator.SetBool(isSearchingParam, true);
-        }
+        SetAnimBool(isChasingParam, false);
+        SetAnimBool(isSearchingParam, true);
     }
 
     private void InvestigateLogic()
@@ -339,11 +376,8 @@ public class PatrolAndChaseAI : MonoBehaviour
     {
         currentState = AIState.Patrol;
 
-        if (animator != null)
-        {
-            animator.SetBool(isChasingParam, false);
-            if (!string.IsNullOrEmpty(isSearchingParam)) animator.SetBool(isSearchingParam, false);
-        }
+        SetAnimBool(isChasingParam, false);
+        SetAnimBool(isSearchingParam, false);
 
         if (chaseMusicSource != null && chaseMusicSource.isPlaying)
         {
@@ -361,6 +395,8 @@ public class PatrolAndChaseAI : MonoBehaviour
     private void MoveTo(Vector3 targetPos, float speed)
     {
         currentDestination = targetPos;
+
+        ValidateNavMeshStatus();
 
         if (agent != null && agent.enabled && agent.isOnNavMesh)
         {
@@ -392,7 +428,12 @@ public class PatrolAndChaseAI : MonoBehaviour
             }
             else
             {
-                transform.position += flatDir.normalized * (speed * Time.deltaTime);
+                Vector3 newPos = transform.position + flatDir.normalized * (speed * Time.deltaTime);
+                if (Physics.Raycast(newPos + Vector3.up * 1.5f, Vector3.down, out RaycastHit hit, 3.0f, obstacleMask))
+                {
+                    newPos.y = hit.point.y;
+                }
+                transform.position = newPos;
             }
         }
     }
@@ -482,6 +523,24 @@ public class PatrolAndChaseAI : MonoBehaviour
         else
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+    }
+
+    private bool HasParameter(string paramName)
+    {
+        if (animator == null || string.IsNullOrEmpty(paramName)) return false;
+        foreach (AnimatorControllerParameter p in animator.parameters)
+        {
+            if (p.name == paramName) return true;
+        }
+        return false;
+    }
+
+    private void SetAnimBool(string paramName, bool val)
+    {
+        if (HasParameter(paramName))
+        {
+            animator.SetBool(paramName, val);
         }
     }
 
