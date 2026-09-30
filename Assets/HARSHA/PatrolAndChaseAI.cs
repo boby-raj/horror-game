@@ -67,6 +67,7 @@ public class PatrolAndChaseAI : MonoBehaviour
     public float delayBeforeRespawn = 1.0f;
 
     private NavMeshAgent agent;
+    private CharacterController characterController;
     private Animator animator;
     private CharacterController playerController;
     private MonoBehaviour playerMovementScript;
@@ -76,16 +77,35 @@ public class PatrolAndChaseAI : MonoBehaviour
     private float searchTimer = 0f;
     private Vector3 lastKnownPlayerPosition;
     private bool hasCaughtPlayer = false;
+    private Vector3 currentDestination;
+    private float verticalVelocity = 0f;
 
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        if (agent == null) agent = GetComponentInChildren<NavMeshAgent>();
+
+        characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+
+        AudioSource[] audios = GetComponents<AudioSource>();
+        if (audios.Length > 0 && chaseMusicSource == null) chaseMusicSource = audios[0];
+        if (audios.Length > 1 && jumpscareSource == null) jumpscareSource = audios[1];
     }
 
     void Start()
     {
         FindPlayerReferences();
+
+        // If NavMeshAgent is present, try snapping to nearest NavMesh surface
+        if (agent != null)
+        {
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5.0f, NavMesh.AllAreas))
+            {
+                agent.Warp(hit.position);
+            }
+        }
     }
 
     void OnEnable()
@@ -93,16 +113,10 @@ public class PatrolAndChaseAI : MonoBehaviour
         hasCaughtPlayer = false;
         currentState = AIState.Patrol;
 
-        if (agent != null)
+        if (agent != null && agent.isOnNavMesh)
         {
             agent.enabled = true;
             agent.speed = patrolSpeed;
-
-            // Snap onto nearest NavMesh floor on spawn
-            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
-            {
-                agent.Warp(hit.position);
-            }
         }
 
         SetNextWaypointDestination();
@@ -139,7 +153,7 @@ public class PatrolAndChaseAI : MonoBehaviour
             if (targetCharacter == null) return;
         }
 
-        if (agent == null || !agent.isOnNavMesh || hasCaughtPlayer) return;
+        if (hasCaughtPlayer) return;
 
         float distanceToPlayer = Vector3.Distance(transform.position, targetCharacter.position);
 
@@ -170,11 +184,10 @@ public class PatrolAndChaseAI : MonoBehaviour
                 if (canSeePlayer)
                 {
                     lastKnownPlayerPosition = targetCharacter.position;
-                    agent.SetDestination(targetCharacter.position);
+                    MoveTo(targetCharacter.position, chaseSpeed);
                 }
                 else
                 {
-                    // Lost visual contact -> Transition to Investigating Last Known Position
                     StartInvestigating();
                 }
                 break;
@@ -192,47 +205,36 @@ public class PatrolAndChaseAI : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Checks distance, field of view angle, and raycast obstacle occlusion.
-    /// </summary>
     private bool CheckLineOfSight(float distanceToPlayer)
     {
         float effectiveRadius = detectionRadius;
 
-        // If player has flashlight active, boost vision range
         if (detectFlashlight && IsPlayerFlashlightOn())
         {
             effectiveRadius += flashlightBonusDistance;
         }
 
-        // 1. Distance check
         if (distanceToPlayer > effectiveRadius) return false;
 
         Vector3 eyePos = transform.position + Vector3.up * eyeHeight;
         Vector3 playerTargetPos = targetCharacter.position + Vector3.up * playerTargetHeight;
         Vector3 directionToPlayer = (playerTargetPos - eyePos).normalized;
 
-        // 2. Field of View (FOV) Angle check
-        // Allow close-range detection even if slightly behind (e.g. within 2.5m)
         if (distanceToPlayer > 2.5f)
         {
             float angle = Vector3.Angle(transform.forward, directionToPlayer);
             if (angle > fieldOfViewAngle * 0.5f)
             {
-                return false; // Player is behind the enemy's vision cone
+                return false;
             }
         }
 
-        // 3. Raycast line of sight check against obstacles (walls, doors)
         if (Physics.Raycast(eyePos, directionToPlayer, out RaycastHit hit, effectiveRadius, obstacleMask))
         {
-            // If the raycast hit the player or a child of the player, line of sight is clear!
             if (hit.transform == targetCharacter || hit.transform.IsChildOf(targetCharacter))
             {
                 return true;
             }
-
-            // Raycast hit a wall/door instead -> blocked!
             return false;
         }
 
@@ -241,7 +243,6 @@ public class PatrolAndChaseAI : MonoBehaviour
 
     private bool IsPlayerFlashlightOn()
     {
-        // Searches for active light on player
         Light[] lights = targetCharacter.GetComponentsInChildren<Light>();
         foreach (Light l in lights)
         {
@@ -257,11 +258,10 @@ public class PatrolAndChaseAI : MonoBehaviour
     {
         if (waypoints == null || waypoints.Length == 0) return;
 
-        // Check if reached current waypoint
-        if (!agent.pathPending && agent.remainingDistance <= 0.6f)
+        float dist = GetDistanceTo(currentDestination);
+        if (dist <= 0.8f)
         {
             waitTimer += Time.deltaTime;
-
             if (waitTimer >= waypointWaitTime)
             {
                 currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
@@ -269,25 +269,26 @@ public class PatrolAndChaseAI : MonoBehaviour
                 waitTimer = 0f;
             }
         }
+        else
+        {
+            MoveTo(currentDestination, patrolSpeed);
+        }
     }
 
     private void SetNextWaypointDestination()
     {
         if (waypoints != null && waypoints.Length > 0 && waypoints[currentWaypointIndex] != null)
         {
-            agent.isStopped = false;
-            agent.speed = patrolSpeed;
-            agent.SetDestination(waypoints[currentWaypointIndex].position);
+            currentDestination = waypoints[currentWaypointIndex].position;
+            MoveTo(currentDestination, patrolSpeed);
         }
     }
 
     private void StartChasing()
     {
         currentState = AIState.Chase;
-        agent.speed = chaseSpeed;
-        agent.isStopped = false;
         lastKnownPlayerPosition = targetCharacter.position;
-        agent.SetDestination(targetCharacter.position);
+        MoveTo(targetCharacter.position, chaseSpeed);
 
         if (animator != null)
         {
@@ -306,11 +307,8 @@ public class PatrolAndChaseAI : MonoBehaviour
     {
         currentState = AIState.Investigating;
         searchTimer = 0f;
-        agent.speed = patrolSpeed * 1.3f;
-        agent.isStopped = false;
-
-        // Move to the exact spot where the player was last seen
-        agent.SetDestination(lastKnownPlayerPosition);
+        currentDestination = lastKnownPlayerPosition;
+        MoveTo(lastKnownPlayerPosition, patrolSpeed * 1.3f);
 
         if (animator != null)
         {
@@ -321,21 +319,18 @@ public class PatrolAndChaseAI : MonoBehaviour
 
     private void InvestigateLogic()
     {
-        // While moving to the last known spot
-        if (agent.remainingDistance > 0.8f)
+        float dist = GetDistanceTo(lastKnownPlayerPosition);
+        if (dist > 0.8f)
         {
+            MoveTo(lastKnownPlayerPosition, patrolSpeed * 1.3f);
             return;
         }
 
-        // Arrived at last known spot -> look around
         searchTimer += Time.deltaTime;
-
-        // Slowly pivot left and right looking for player
         transform.Rotate(Vector3.up * Mathf.Sin(Time.time * 2f) * searchTurnSpeed * Time.deltaTime);
 
         if (searchTimer >= searchDuration)
         {
-            // Give up search and resume normal patrol
             StopChasingAndResumePatrol();
         }
     }
@@ -343,8 +338,6 @@ public class PatrolAndChaseAI : MonoBehaviour
     private void StopChasingAndResumePatrol()
     {
         currentState = AIState.Patrol;
-        agent.speed = patrolSpeed;
-        agent.isStopped = false;
 
         if (animator != null)
         {
@@ -360,6 +353,64 @@ public class PatrolAndChaseAI : MonoBehaviour
         SetNextWaypointDestination();
     }
 
+    /// <summary>
+    /// Smooth universal movement engine: Uses NavMeshAgent if on NavMesh,
+    /// otherwise falls back to CharacterController or physics movement so the enemy
+    /// works anywhere in the scene regardless of NavMesh baking.
+    /// </summary>
+    private void MoveTo(Vector3 targetPos, float speed)
+    {
+        currentDestination = targetPos;
+
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+            agent.speed = speed;
+            agent.SetDestination(targetPos);
+            return;
+        }
+
+        // Fallback: CharacterController or Transform movement
+        Vector3 flatDir = targetPos - transform.position;
+        flatDir.y = 0f;
+
+        if (flatDir.sqrMagnitude > 0.04f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(flatDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
+            transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, 0f);
+
+            Vector3 move = flatDir.normalized * speed;
+
+            if (characterController != null && characterController.enabled)
+            {
+                if (characterController.isGrounded) verticalVelocity = -5f;
+                else verticalVelocity += -20f * Time.deltaTime;
+
+                move.y = verticalVelocity;
+                characterController.Move(move * Time.deltaTime);
+            }
+            else
+            {
+                transform.position += flatDir.normalized * (speed * Time.deltaTime);
+            }
+        }
+    }
+
+    private float GetDistanceTo(Vector3 targetPos)
+    {
+        if (agent != null && agent.enabled && agent.isOnNavMesh && !agent.pathPending)
+        {
+            return agent.remainingDistance;
+        }
+
+        Vector3 flatSelf = transform.position;
+        flatSelf.y = 0;
+        Vector3 flatTarget = targetPos;
+        flatTarget.y = 0;
+        return Vector3.Distance(flatSelf, flatTarget);
+    }
+
     private void CatchPlayer()
     {
         if (hasCaughtPlayer) return;
@@ -371,30 +422,25 @@ public class PatrolAndChaseAI : MonoBehaviour
 
     private IEnumerator ExecuteJumpscareSequence()
     {
-        // 1. Freeze enemy movement
-        if (agent != null)
+        if (agent != null && agent.isOnNavMesh)
         {
             agent.isStopped = true;
             agent.velocity = Vector3.zero;
             agent.enabled = false;
         }
 
-        // 2. Freeze Player Controls
         if (playerController != null) playerController.enabled = false;
         if (playerMovementScript != null) playerMovementScript.enabled = false;
 
-        // 3. Audio Transition
         if (chaseMusicSource != null && chaseMusicSource.isPlaying) chaseMusicSource.Stop();
         if (jumpscareSource != null) jumpscareSource.Play();
 
-        // 4. Snap Monster right in front of player's face
         if (playerCamera != null)
         {
             Vector3 facePosition = playerCamera.position + (playerCamera.forward * faceDistance);
             facePosition.y = playerCamera.position.y - 0.4f;
             transform.position = facePosition;
 
-            // Rotate monster to face camera
             Vector3 lookDir = (playerCamera.position - transform.position).normalized;
             lookDir.y = 0;
             if (lookDir != Vector3.zero)
@@ -403,7 +449,6 @@ public class PatrolAndChaseAI : MonoBehaviour
             }
         }
 
-        // 5. Camera Lock & Violent Screen Vibration
         float timer = 0f;
         Vector3 originalCamPos = playerCamera != null ? playerCamera.localPosition : Vector3.zero;
 
@@ -413,7 +458,6 @@ public class PatrolAndChaseAI : MonoBehaviour
 
             if (playerCamera != null)
             {
-                // Lock camera gaze directly onto the monster's eyes
                 Vector3 monsterHeadPos = transform.position + Vector3.up * eyeHeight;
                 Vector3 lookAtMonster = (monsterHeadPos - playerCamera.position).normalized;
                 if (lookAtMonster != Vector3.zero)
@@ -421,7 +465,6 @@ public class PatrolAndChaseAI : MonoBehaviour
                     playerCamera.rotation = Quaternion.LookRotation(lookAtMonster);
                 }
 
-                // Intense vibration shake
                 playerCamera.localPosition = originalCamPos + Random.insideUnitSphere * vibrationIntensity;
             }
 
@@ -432,7 +475,6 @@ public class PatrolAndChaseAI : MonoBehaviour
 
         yield return new WaitForSeconds(delayBeforeRespawn);
 
-        // 6. Respawn or Reload
         if (SaveManager.Instance != null)
         {
             SaveManager.Instance.RespawnPlayer();
@@ -447,24 +489,20 @@ public class PatrolAndChaseAI : MonoBehaviour
     {
         Vector3 eyePos = transform.position + Vector3.up * eyeHeight;
 
-        // Draw Detection Radius
         Gizmos.color = (currentState == AIState.Chase) ? Color.red :
                        (currentState == AIState.Investigating) ? Color.yellow : Color.green;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // Draw Catch Distance
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, catchDistance);
 
-        // Draw Vision Cone FOV Lines
-        Vector3 leftRayDirection = Quaternion.Euler(0, -fieldOfViewAngle * 0.5f, 0) * transform.forward;
-        Vector3 rightRayDirection = Quaternion.Euler(0, fieldOfViewAngle * 0.5f, 0) * transform.forward;
+        Vector3 leftRay = Quaternion.Euler(0, -fieldOfViewAngle * 0.5f, 0) * transform.forward;
+        Vector3 rightRay = Quaternion.Euler(0, fieldOfViewAngle * 0.5f, 0) * transform.forward;
 
         Gizmos.color = Color.cyan;
-        Gizmos.DrawRay(eyePos, leftRayDirection * detectionRadius);
-        Gizmos.DrawRay(eyePos, rightRayDirection * detectionRadius);
+        Gizmos.DrawRay(eyePos, leftRay * detectionRadius);
+        Gizmos.DrawRay(eyePos, rightRay * detectionRadius);
 
-        // Draw line to last known position if investigating
         if (currentState == AIState.Investigating)
         {
             Gizmos.color = Color.yellow;
