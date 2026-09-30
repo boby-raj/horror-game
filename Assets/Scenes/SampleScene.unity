@@ -8671,7 +8671,7 @@ MonoBehaviour:
   pickupSound: {fileID: 8300000, guid: b4042e09886ff33478500ae9f935c63a, type: 3}
   keyAcquiredText: {fileID: 1897556237}
   textDisplayTime: 1.5
-  hoverText: {fileID: 922764035}
+  hoverText: {fileID: 901663477}
   inventoryIcon: {fileID: 486120278}
 --- !u!1001 &298175407
 PrefabInstance:
@@ -13276,7 +13276,7 @@ MonoBehaviour:
   pickupSound: {fileID: 8300000, guid: b80bbcbd39737704a9e4845629738c66, type: 3}
   keyAcquiredText: {fileID: 1897556237}
   textDisplayTime: 2.5
-  hoverText: {fileID: 922764035}
+  hoverText: {fileID: 901663477}
   inventoryIcon: {fileID: 486120278}
 --- !u!65 &457674229
 BoxCollider:
@@ -31350,7 +31350,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &922764036
 RectTransform:
   m_ObjectHideFlags: 0
@@ -51162,7 +51162,7 @@ MonoBehaviour:
   pickupSound: {fileID: 8300000, guid: b4042e09886ff33478500ae9f935c63a, type: 3}
   keyAcquiredText: {fileID: 1897556237}
   textDisplayTime: 1.5
-  hoverText: {fileID: 922764035}
+  hoverText: {fileID: 901663477}
   inventoryIcon: {fileID: 486120278}
 --- !u!1 &1434475641
 GameObject:

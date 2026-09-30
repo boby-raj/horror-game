@@ -89,6 +89,19 @@ public class PatrolAndChaseAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         if (agent == null) agent = GetComponentInChildren<NavMeshAgent>();
 
+        // Ensure NavMeshAgent exists so the enemy can smoothly navigate baked NavMesh
+        if (agent == null)
+        {
+            agent = gameObject.AddComponent<NavMeshAgent>();
+            agent.radius = 0.5f;
+            agent.height = 2f;
+            agent.speed = patrolSpeed;
+            agent.acceleration = 12f;
+            agent.angularSpeed = 240f;
+            agent.stoppingDistance = 0.5f;
+            agent.autoBraking = false;
+        }
+
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         if (animator == null) animator = GetComponentInChildren<Animator>();
@@ -116,17 +129,23 @@ public class PatrolAndChaseAI : MonoBehaviour
     {
         if (agent == null) return;
 
+        // If already navigating on NavMesh, ensure CharacterController is disabled so they don't fight
+        if (agent.isOnNavMesh)
+        {
+            if (characterController != null && characterController.enabled)
+            {
+                characterController.enabled = false;
+            }
+            return;
+        }
+
         bool onMesh = false;
         try
         {
             if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3.0f, NavMesh.AllAreas))
             {
-                agent.enabled = true;
+                if (!agent.enabled) agent.enabled = true;
                 agent.Warp(hit.position);
-                onMesh = agent.isOnNavMesh;
-            }
-            else
-            {
                 onMesh = agent.isOnNavMesh;
             }
         }
@@ -135,14 +154,20 @@ public class PatrolAndChaseAI : MonoBehaviour
             onMesh = false;
         }
 
-        // If not on baked NavMesh, disable agent so it does NOT freeze the GameObject's position!
-        if (!onMesh && agent.enabled)
+        if (onMesh)
         {
-            agent.enabled = false;
+            if (characterController != null && characterController.enabled)
+            {
+                characterController.enabled = false;
+            }
         }
-        else if (onMesh && !agent.enabled)
+        else
         {
-            agent.enabled = true;
+            if (agent.enabled) agent.enabled = false;
+            if (characterController != null && !characterController.enabled)
+            {
+                characterController.enabled = true;
+            }
         }
     }
 
@@ -396,17 +421,36 @@ public class PatrolAndChaseAI : MonoBehaviour
     {
         currentDestination = targetPos;
 
-        ValidateNavMeshStatus();
-
         if (agent != null && agent.enabled && agent.isOnNavMesh)
         {
+            if (characterController != null && characterController.enabled)
+            {
+                characterController.enabled = false;
+            }
             agent.isStopped = false;
             agent.speed = speed;
             agent.SetDestination(targetPos);
             return;
         }
 
+        // If outside NavMesh, periodically check if we can re-dock onto a baked NavMesh
+        if (agent != null && !agent.isOnNavMesh && Time.frameCount % 60 == 0)
+        {
+            ValidateNavMeshStatus();
+            if (agent.isOnNavMesh)
+            {
+                agent.isStopped = false;
+                agent.speed = speed;
+                agent.SetDestination(targetPos);
+                return;
+            }
+        }
+
         // Fallback: CharacterController or Transform movement
+        if (characterController != null && !characterController.enabled)
+        {
+            characterController.enabled = true;
+        }
         Vector3 flatDir = targetPos - transform.position;
         flatDir.y = 0f;
 
