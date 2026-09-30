@@ -1553,7 +1553,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aff4833db8e2b14aa0f0b6071c41e5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Formats.USD.Runtime::Unity.Formats.USD.UsdAsset
-  m_usdFile: c:/Users/Boby/Downloads/Table.usdz
+  m_usdFile: 
   m_projectAssetPath: Assets/
   m_usdRootPath: /
   m_usdTimeOffset: 0
@@ -2715,7 +2715,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aff4833db8e2b14aa0f0b6071c41e5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Formats.USD.Runtime::Unity.Formats.USD.UsdAsset
-  m_usdFile: c:/Users/Boby/Downloads/Table.usdz
+  m_usdFile: 
   m_projectAssetPath: Assets/
   m_usdRootPath: /
   m_usdTimeOffset: 0
@@ -11974,7 +11974,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -544302208240869367, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
+  - {fileID: 2100000, guid: 643714d43ffd0eb4fa68eb1801e0f465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -16769,7 +16769,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1917376412}
+  m_Father: {fileID: 26614472}
   m_LocalEulerAnglesHint: {x: 94.259, y: 0, z: 0}
 --- !u!114 &574970630
 MonoBehaviour:
@@ -26120,9 +26120,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2024162383}
-    - targetCorrespondingSourceObject: {fileID: 2855864113282105254, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1355989410}
   m_SourcePrefab: {fileID: 100100000, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
 --- !u!82 &823379987
 AudioSource:
@@ -32589,7 +32586,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -544302208240869367, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
+  - {fileID: 2100000, guid: 643714d43ffd0eb4fa68eb1801e0f465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -35630,7 +35627,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: USD/SrpVertexColor
-  m_Shader: {fileID: 4800000, guid: a42158c4b633a5b4285051ceeaa601ae, type: 3}
+  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -36424,7 +36421,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f7d08cf9f817f44d9fbdaaa07f7c72e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
-  interactionDistance: 3
+  interactionDistance: 5
   interactableLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -42226,7 +42223,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -544302208240869367, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
+  - {fileID: 2100000, guid: 643714d43ffd0eb4fa68eb1801e0f465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -45434,7 +45431,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -544302208240869367, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
+  - {fileID: 2100000, guid: 643714d43ffd0eb4fa68eb1801e0f465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -47373,108 +47370,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1848871804}
   m_SourcePrefab: {fileID: 100100000, guid: 80d04da16ada7bd469b9bf95c31ca9ed, type: 3}
---- !u!1 &1355989409 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2855864113282105254, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
-  m_PrefabInstance: {fileID: 821248071}
-  m_PrefabAsset: {fileID: 0}
---- !u!82 &1355989410
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1355989409}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: d0d4b0e639d0ce84eb072339fbaf2878, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!1 &1357375914
 GameObject:
   m_ObjectHideFlags: 0
@@ -52413,13 +52308,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: -2484921068739079471, guid: 74f317d0a1c754d409108591f339d6dc, type: 3}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 74f317d0a1c754d409108591f339d6dc, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1495020133}
-    - targetCorrespondingSourceObject: {fileID: -2484921068739079471, guid: 74f317d0a1c754d409108591f339d6dc, type: 3}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 74f317d0a1c754d409108591f339d6dc, type: 3}
       insertIndex: -1
       addedObject: {fileID: 574970629}
-    - targetCorrespondingSourceObject: {fileID: -2484921068739079471, guid: 74f317d0a1c754d409108591f339d6dc, type: 3}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 74f317d0a1c754d409108591f339d6dc, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1700935060}
     m_AddedComponents: []
@@ -53248,7 +53143,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1917376412}
+  m_Father: {fileID: 26614472}
   m_LocalEulerAnglesHint: {x: 94.259, y: 0, z: 0}
 --- !u!114 &1495020134
 MonoBehaviour:
@@ -54088,7 +53983,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -544302208240869367, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
+  - {fileID: 2100000, guid: 643714d43ffd0eb4fa68eb1801e0f465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -56671,7 +56566,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -544302208240869367, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
+  - {fileID: 2100000, guid: 643714d43ffd0eb4fa68eb1801e0f465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -56976,7 +56871,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aff4833db8e2b14aa0f0b6071c41e5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Formats.USD.Runtime::Unity.Formats.USD.UsdAsset
-  m_usdFile: c:/Users/Boby/Downloads/Lever_Power_Switch.usdz
+  m_usdFile: 
   m_projectAssetPath: Assets/
   m_usdRootPath: /scene
   m_usdTimeOffset: 0
@@ -60323,7 +60218,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1917376412}
+  m_Father: {fileID: 26614472}
   m_LocalEulerAnglesHint: {x: 94.259, y: 0, z: 0}
 --- !u!114 &1700935061
 MonoBehaviour:
@@ -69499,7 +69394,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -544302208240869367, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
+  - {fileID: 2100000, guid: 643714d43ffd0eb4fa68eb1801e0f465, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -69578,11 +69473,6 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!4 &1917376412 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -2484921068739079471, guid: 74f317d0a1c754d409108591f339d6dc, type: 3}
-  m_PrefabInstance: {fileID: 1457299209}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1919187004 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 6929339097af8ce4bbd6c6d39728a5cc, type: 3}
@@ -69967,7 +69857,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1935751931
 RectTransform:
   m_ObjectHideFlags: 0
@@ -73039,12 +72929,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 670ba1f2e1edf224a8f26af83131bc5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OpenDrawer
-  ANI: {fileID: 835068839}
-  opensound: {fileID: 835068837}
-  closesound: {fileID: 835068837}
-  commmonAudio: {fileID: 835068837}
-  opentext: {fileID: 0}
-  closetext: {fileID: 0}
+  ANI: {fileID: 2020039300}
+  opensound: {fileID: 2020039299}
+  closesound: {fileID: 2020039299}
+  commmonAudio: {fileID: 2020039299}
+  opentext: {fileID: 567696382}
+  closetext: {fileID: 567696382}
 --- !u!64 &2020039302
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -73371,7 +73261,7 @@ MonoBehaviour:
   vibrationDuration: 1.2
   delayBeforeRespawn: 1
   chaseAudioSource: {fileID: 2024162383}
-  jumpscareAudioSource: {fileID: 1355989410}
+  jumpscareAudioSource: {fileID: 0}
 --- !u!143 &2024162385
 CharacterController:
   m_ObjectHideFlags: 0

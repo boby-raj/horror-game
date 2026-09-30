@@ -2,18 +2,36 @@ using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    public float interactionDistance = 6f;
-    public LayerMask interactableLayer;
+    [Header("Interaction Settings")]
+    [Tooltip("How far the player can reach to press E")]
+    public float interactionDistance = 5f;
+    [Tooltip("Layers the raycast can interact with (automatically ensures Layer 8 is included)")]
+    public LayerMask interactableLayer = ~0;
 
-    // This remembers what object we are currently looking at
     private IInteractable currentInteractable;
+
+    void Awake()
+    {
+        // Ensure distance is comfortable for first-person interaction
+        if (interactionDistance < 4.5f) interactionDistance = 4.5f;
+
+        // If layer mask was unconfigured or 0, default to hitting all layers
+        if (interactableLayer.value == 0)
+        {
+            interactableLayer = ~0;
+        }
+        else
+        {
+            // Ensure Layer 8 (Interactable) is always included
+            interactableLayer |= (1 << 8);
+        }
+    }
 
     void Update()
     {
-        // 1. Constantly check what we are looking at
         CheckForInteractable();
 
-        // 2. If we press E, and we are looking at something, Interact with it!
+        // When pressing 'E' while looking at an interactable object
         if (Input.GetKeyDown(KeyCode.E) && currentInteractable != null)
         {
             currentInteractable.Interact();
@@ -21,38 +39,40 @@ public class PlayerInteraction : MonoBehaviour
     }
 
     void CheckForInteractable()
-{
-    // Shoot a ray from the exact pixel center of the screen
-    // (Screen.width / 2 is the exact middle horizontal pixel, Screen.height / 2 is vertical)
-    Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));
-    
-    if (Physics.Raycast(ray, out RaycastHit hitInfo, interactionDistance, interactableLayer))
     {
-        IInteractable interactableObj = hitInfo.collider.GetComponent<IInteractable>();
-        
-        // If we are looking at a valid object...
-        if (interactableObj != null)
+        Camera cam = Camera.main;
+        if (cam == null) cam = GetComponent<Camera>();
+        if (cam == null) return;
+
+        // Shoot ray from exact center of screen crosshair
+        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, interactionDistance, interactableLayer, QueryTriggerInteraction.Collide))
         {
-            // If it is a NEW object we just looked at...
-            if (interactableObj != currentInteractable)
+            // Check the hit collider, its parents, or its children for IInteractable
+            IInteractable interactableObj = hitInfo.collider.GetComponentInParent<IInteractable>();
+            if (interactableObj == null)
             {
-                // Turn off the old object (if there was one)
-                if (currentInteractable != null) currentInteractable.OnHoverExit();
-                
-                // Turn on the new object
-                currentInteractable = interactableObj;
-                currentInteractable.OnHoverEnter();
+                interactableObj = hitInfo.collider.GetComponentInChildren<IInteractable>();
+            }
+
+            if (interactableObj != null)
+            {
+                if (interactableObj != currentInteractable)
+                {
+                    if (currentInteractable != null) currentInteractable.OnHoverExit();
+                    currentInteractable = interactableObj;
+                    currentInteractable.OnHoverEnter();
+                }
+                return;
             }
         }
-    }
-    else
-    {
-        // If the raycast hits empty air, turn off whatever we were looking at
+
+        // Looking at nothing interactable
         if (currentInteractable != null)
         {
             currentInteractable.OnHoverExit();
             currentInteractable = null;
         }
     }
-}
 }
