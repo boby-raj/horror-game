@@ -44,9 +44,17 @@ public class PatrolAndChaseAI : MonoBehaviour
     public float chaseSpeed = 4.8f;
     public float waypointWaitTime = 1.5f;
 
-    [Header("Dynamic Hunting (When No Waypoints)")]
-    [Tooltip("If no waypoints are assigned, enemy hunts / stalks towards player instead of freezing in place.")]
-    public bool huntPlayerIfNoWaypoints = true;
+    [Header("Chase & Escape Tuning")]
+    [Tooltip("If the player gets farther than this distance during chase, the enemy loses interest")]
+    public float loseDistance = 18.0f;
+
+    [Header("Random Roaming (When No Waypoints)")]
+    [Tooltip("If true and no waypoints are assigned, enemy wanders freely around the map")]
+    public bool randomRoamIfNoWaypoints = true;
+    [Tooltip("Radius around current position to pick random roam destinations")]
+    public float roamRadius = 15.0f;
+    [Tooltip("How long enemy pauses at a roam destination before wandering to a new one")]
+    public float roamWaitTime = 2.0f;
 
     [Header("Investigate / Search State")]
     [Tooltip("How long enemy searches the last known player position before giving up")]
@@ -83,6 +91,8 @@ public class PatrolAndChaseAI : MonoBehaviour
     private bool hasCaughtPlayer = false;
     private Vector3 currentDestination;
     private float verticalVelocity = 0f;
+    private bool hasRoamDestination = false;
+    private float roamStuckTimer = 0f;
 
     protected virtual void Awake()
     {
@@ -115,14 +125,29 @@ public class PatrolAndChaseAI : MonoBehaviour
     {
         FindPlayerReferences();
         ValidateNavMeshStatus();
+        InitializePatrol();
     }
 
     void OnEnable()
     {
         hasCaughtPlayer = false;
         currentState = AIState.Patrol;
+        hasRoamDestination = false;
+        waitTimer = 0f;
         ValidateNavMeshStatus();
-        SetNextWaypointDestination();
+        InitializePatrol();
+    }
+
+    private void InitializePatrol()
+    {
+        if (waypoints != null && waypoints.Length > 0 && waypoints[0] != null)
+        {
+            SetNextWaypointDestination();
+        }
+        else if (randomRoamIfNoWaypoints)
+        {
+            SetNextRandomRoamDestination();
+        }
     }
 
     private void ValidateNavMeshStatus()
@@ -230,7 +255,7 @@ public class PatrolAndChaseAI : MonoBehaviour
                 break;
 
             case AIState.Chase:
-                if (canSeePlayer)
+                if (canSeePlayer && distanceToPlayer <= loseDistance)
                 {
                     lastKnownPlayerPosition = targetCharacter.position;
                     MoveTo(targetCharacter.position, chaseSpeed);
@@ -316,29 +341,105 @@ public class PatrolAndChaseAI : MonoBehaviour
 
     private void PatrolLogic()
     {
-        if (waypoints == null || waypoints.Length == 0 || waypoints[0] == null)
+        // 1. Waypoint Patrol (if waypoints exist)
+        if (waypoints != null && waypoints.Length > 0 && waypoints[0] != null)
         {
-            if (huntPlayerIfNoWaypoints && targetCharacter != null)
+            float dist = GetDistanceTo(currentDestination);
+            if (dist <= 0.8f)
             {
-                // Stalk towards player's position
-                MoveTo(targetCharacter.position, patrolSpeed);
+                waitTimer += Time.deltaTime;
+                if (waitTimer >= waypointWaitTime)
+                {
+                    currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+                    SetNextWaypointDestination();
+                    waitTimer = 0f;
+                }
+            }
+            else
+            {
+                MoveTo(currentDestination, patrolSpeed);
             }
             return;
         }
 
-        float dist = GetDistanceTo(currentDestination);
-        if (dist <= 0.8f)
+        // 2. Random Roaming Patrol (when no waypoints are assigned)
+        if (randomRoamIfNoWaypoints)
         {
-            waitTimer += Time.deltaTime;
-            if (waitTimer >= waypointWaitTime)
+            if (!hasRoamDestination)
             {
-                currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
-                SetNextWaypointDestination();
+                SetNextRandomRoamDestination();
+                return;
+            }
+
+            float roamDist = GetDistanceTo(currentDestination);
+            roamStuckTimer += Time.deltaTime;
+
+            // Arrived at roam point or took too long trying to reach it
+            if (roamDist <= 1.2f || roamStuckTimer >= 12.0f)
+            {
+                waitTimer += Time.deltaTime;
+
+                if (agent != null && agent.enabled && agent.isOnNavMesh)
+                {
+                    agent.isStopped = true;
+                }
+
+                if (waitTimer >= roamWaitTime)
+                {
+                    SetNextRandomRoamDestination();
+                    waitTimer = 0f;
+                }
+            }
+            else
+            {
                 waitTimer = 0f;
+                MoveTo(currentDestination, patrolSpeed);
             }
         }
-        else
+    }
+
+    private void SetNextRandomRoamDestination()
+    {
+        for (int i = 0; i < 30; i++)
         {
+            Vector3 randomOffset = Random.insideUnitSphere * roamRadius;
+            randomOffset.y = 0f;
+            Vector3 candidatePos = transform.position + randomOffset;
+
+            if (NavMesh.SamplePosition(candidatePos, out NavMeshHit hit, roamRadius * 0.5f, NavMesh.AllAreas))
+            {
+                if (Vector3.Distance(transform.position, hit.position) > 3.0f)
+                {
+                    NavMeshPath path = new NavMeshPath();
+                    if (agent != null && agent.enabled && agent.isOnNavMesh)
+                    {
+                        if (agent.CalculatePath(hit.position, path) && path.status == NavMeshPathStatus.PathComplete)
+                        {
+                            currentDestination = hit.position;
+                            hasRoamDestination = true;
+                            roamStuckTimer = 0f;
+                            MoveTo(currentDestination, patrolSpeed);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        currentDestination = hit.position;
+                        hasRoamDestination = true;
+                        roamStuckTimer = 0f;
+                        MoveTo(currentDestination, patrolSpeed);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Fallback: sample any point around the enemy
+        if (NavMesh.SamplePosition(transform.position + Random.onUnitSphere * 6f, out NavMeshHit fallbackHit, 10f, NavMesh.AllAreas))
+        {
+            currentDestination = fallbackHit.position;
+            hasRoamDestination = true;
+            roamStuckTimer = 0f;
             MoveTo(currentDestination, patrolSpeed);
         }
     }
@@ -355,6 +456,7 @@ public class PatrolAndChaseAI : MonoBehaviour
     private void StartChasing()
     {
         currentState = AIState.Chase;
+        hasRoamDestination = false;
         lastKnownPlayerPosition = targetCharacter.position;
         MoveTo(targetCharacter.position, chaseSpeed);
 
@@ -372,6 +474,7 @@ public class PatrolAndChaseAI : MonoBehaviour
     {
         currentState = AIState.Investigating;
         searchTimer = 0f;
+        hasRoamDestination = false;
         currentDestination = lastKnownPlayerPosition;
         MoveTo(lastKnownPlayerPosition, patrolSpeed * 1.3f);
 
@@ -409,7 +512,9 @@ public class PatrolAndChaseAI : MonoBehaviour
             chaseMusicSource.Stop();
         }
 
-        SetNextWaypointDestination();
+        hasRoamDestination = false;
+        waitTimer = 0f;
+        InitializePatrol();
     }
 
     /// <summary>

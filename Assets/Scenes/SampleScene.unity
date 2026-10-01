@@ -73333,7 +73333,10 @@ MonoBehaviour:
   patrolSpeed: 2
   chaseSpeed: 4.8
   waypointWaitTime: 1.5
-  huntPlayerIfNoWaypoints: 1
+  loseDistance: 18
+  randomRoamIfNoWaypoints: 1
+  roamRadius: 15
+  roamWaitTime: 2
   searchDuration: 4
   searchTurnSpeed: 90
   isChasingParam: IsChasing
