@@ -17,31 +17,6 @@ public class key : MonoBehaviour, IInteractable
 
     private bool isPickedUp = false;
 
-    void Awake()
-    {
-        if (hoverText == null)
-        {
-            GameObject ePrompt = GameObject.Find("[E]");
-            if (ePrompt == null)
-            {
-                Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-                foreach (Canvas c in canvases)
-                {
-                    Transform t = c.transform.Find("[E]");
-                    if (t != null)
-                    {
-                        ePrompt = t.gameObject;
-                        break;
-                    }
-                }
-            }
-            if (ePrompt != null)
-            {
-                hoverText = ePrompt;
-            }
-        }
-    }
-
     void Start()
     {
         if (keyAcquiredText != null) keyAcquiredText.SetActive(false);

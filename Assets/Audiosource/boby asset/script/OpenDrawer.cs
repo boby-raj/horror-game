@@ -1,234 +1,118 @@
-using System.Collections;
 using UnityEngine;
 
 public class OpenDrawer : MonoBehaviour, IInteractable
 {
-    [Header("DRAWER ANIMATION & MOVEMENT")]
-    [Tooltip("Animator with 'open' and 'close' bools. Auto-found if left empty.")]
+    [Header("DRAWER SETTINGS")]
     public Animator ANI;
-    [Tooltip("If no Animator is assigned, drawer will slide physically by this offset")]
-    public Vector3 slideDirection = new Vector3(0, 0, -0.45f);
-    public float slideSpeed = 3.0f;
-
-    [Header("AUDIO")]
     public AudioSource opensound;
     public AudioSource closesound;
     public AudioSource commmonAudio;
 
-    [Header("UI PANELS / PROMPTS (OPTIONAL)")]
-    public GameObject opentext;
-    public GameObject closetext;
-
-    [Header("OUTLINE / HIGHLIGHT EFFECT")]
-    public bool highlightOnHover = false;
-    public Color hoverColor = Color.yellow;
+    [Header("UI PANELS / TEXT")]
+    public GameObject opentext;  // Put your "Press E to Open" UI here
+    public GameObject closetext; // Put your "Press E to Close" UI here
 
     private bool open = false;
-    private Renderer[] renderers;
-    private Color[] originalColors;
-    private Vector3 closedLocalPosition;
-    private Vector3 openLocalPosition;
-    private Coroutine slideCoroutine;
 
-    private static GameObject cachedInteractUI;
-
-    void Awake()
-    {
-        // 1. Auto-resolve Animator: prefer Animator on self, then child/parent
-        if (ANI == null || ANI.gameObject != gameObject)
-        {
-            Animator selfAnim = GetComponent<Animator>();
-            if (selfAnim != null) ANI = selfAnim;
-            else if (ANI == null)
-            {
-                ANI = GetComponentInChildren<Animator>();
-                if (ANI == null) ANI = GetComponentInParent<Animator>();
-            }
-        }
-
-        // 2. Auto-resolve AudioSource on self if missing
-        AudioSource selfAudio = GetComponent<AudioSource>();
-        if (opensound == null && selfAudio != null) opensound = selfAudio;
-        if (closesound == null && selfAudio != null) closesound = selfAudio;
-        if (commmonAudio == null && selfAudio != null) commmonAudio = selfAudio;
-
-        // 3. Cache open and closed positions for fallback slide
-        closedLocalPosition = transform.localPosition;
-        openLocalPosition = closedLocalPosition + slideDirection;
-
-        // 4. Cache UI prompt if assigned
-        if (opentext != null && cachedInteractUI == null)
-        {
-            cachedInteractUI = opentext;
-        }
-    }
+    // Variables for the outline/shine effect
+    private Renderer meshRenderer;
+    private Color originalColor;
 
     void Start()
     {
-        // Auto-find Drawer_interact UI prompt if unassigned
-        if (opentext == null)
-        {
-            if (cachedInteractUI != null)
-            {
-                opentext = cachedInteractUI;
-            }
-            else
-            {
-                GameObject found = GameObject.Find("Drawer_interact");
-                if (found != null)
-                {
-                    cachedInteractUI = found;
-                    opentext = found;
-                }
-                else
-                {
-                    foreach (Canvas canvas in FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-                    {
-                        Transform t = canvas.transform.Find("Drawer_interact");
-                        if (t != null)
-                        {
-                            opentext = t.gameObject;
-                            cachedInteractUI = opentext;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (closetext == null)
-        {
-            closetext = opentext;
-        }
-
-        // Hide UI prompts at startup
+        // 1. Hide the UI text when the game starts
         if (opentext != null) opentext.SetActive(false);
         if (closetext != null) closetext.SetActive(false);
-
-        // Reset Animator parameters
-        if (ANI != null && ANI.runtimeAnimatorController != null)
+        
+        // 2. Reset animations
+        if (ANI != null)
         {
             ANI.SetBool("open", false);
-            ANI.SetBool("close", false);
+            ANI.SetBool("close", false); 
         }
 
-        // Cache renderers and base colors if hover highlight is used
-        if (highlightOnHover)
+        // 3. Save the original color of the drawer for the hover effect
+        meshRenderer = GetComponent<Renderer>();
+        if (meshRenderer != null)
         {
-            renderers = GetComponentsInChildren<Renderer>();
-            if (renderers != null && renderers.Length > 0)
-            {
-                originalColors = new Color[renderers.Length];
-                for (int i = 0; i < renderers.Length; i++)
-                {
-                    if (renderers[i].material != null)
-                    {
-                        if (renderers[i].material.HasProperty("_BaseColor"))
-                            originalColors[i] = renderers[i].material.GetColor("_BaseColor");
-                        else if (renderers[i].material.HasProperty("_Color"))
-                            originalColors[i] = renderers[i].material.color;
-                    }
-                }
-            }
+            originalColor = meshRenderer.material.color;
         }
     }
 
     public void OnHoverEnter()
     {
-        if (highlightOnHover && renderers != null)
+        // THIS HAPPENS WHEN THE RAYCAST HITS THE DRAWER
+        
+        // 1. Turn the drawer yellow (Outline/Shine effect)
+        if (meshRenderer != null)
         {
-            foreach (Renderer r in renderers)
-            {
-                if (r != null && r.material != null)
-                {
-                    if (r.material.HasProperty("_BaseColor"))
-                        r.material.SetColor("_BaseColor", hoverColor);
-                    else if (r.material.HasProperty("_Color"))
-                        r.material.color = hoverColor;
-                }
-            }
+            meshRenderer.material.color = Color.yellow;
         }
 
-        if (!open && opentext != null) opentext.SetActive(true);
-        else if (open && closetext != null) closetext.SetActive(true);
+        // 2. Show the correct text based on if the drawer is open or closed
+        if (!open && opentext != null) 
+        {
+            opentext.SetActive(true);
+        }
+        else if (open && closetext != null)
+        {
+            closetext.SetActive(true);
+        }
     }
 
     public void OnHoverExit()
     {
-        if (highlightOnHover && renderers != null && originalColors != null)
+        // THIS HAPPENS WHEN THE RAYCAST LEAVES THE DRAWER
+        
+        // 1. Revert the color back to normal
+        if (meshRenderer != null)
         {
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                if (renderers[i] != null && renderers[i].material != null)
-                {
-                    if (renderers[i].material.HasProperty("_BaseColor"))
-                        renderers[i].material.SetColor("_BaseColor", originalColors[i]);
-                    else if (renderers[i].material.HasProperty("_Color"))
-                        renderers[i].material.color = originalColors[i];
-                }
-            }
+            meshRenderer.material.color = originalColor;
         }
 
+        // 2. Hide all text
         if (opentext != null) opentext.SetActive(false);
         if (closetext != null) closetext.SetActive(false);
     }
 
     public void Interact()
     {
-        open = !open;
-
-        PlayAudio();
-
-        if (open)
+        // THIS HAPPENS WHEN YOU PRESS 'E'
+        if (!open)
         {
-            // OPEN
-            if (ANI != null && ANI.runtimeAnimatorController != null)
+            // --- OPEN LOGIC ---
+            if (opensound != null) opensound.Play();
+            if (commmonAudio != null) commmonAudio.Play();
+            
+            if (ANI != null)
             {
                 ANI.SetBool("open", true);
                 ANI.SetBool("close", false);
             }
-            else
-            {
-                if (slideCoroutine != null) StopCoroutine(slideCoroutine);
-                slideCoroutine = StartCoroutine(SlideToPosition(openLocalPosition));
-            }
-
+            
+            open = true;
+            
+            // Swap the UI text immediately while you are still looking at it
             if (opentext != null) opentext.SetActive(false);
             if (closetext != null) closetext.SetActive(true);
         }
         else
         {
-            // CLOSE
-            if (ANI != null && ANI.runtimeAnimatorController != null)
+            // --- CLOSE LOGIC ---
+            if (closesound != null) closesound.Play();
+            if (commmonAudio != null) commmonAudio.Play();
+
+            if (ANI != null)
             {
                 ANI.SetBool("open", false);
                 ANI.SetBool("close", true);
             }
-            else
-            {
-                if (slideCoroutine != null) StopCoroutine(slideCoroutine);
-                slideCoroutine = StartCoroutine(SlideToPosition(closedLocalPosition));
-            }
-
+            
+            open = false;
+            
+            // Swap the UI text immediately while you are still looking at it
             if (closetext != null) closetext.SetActive(false);
             if (opentext != null) opentext.SetActive(true);
         }
-    }
-
-    private void PlayAudio()
-    {
-        if (opensound != null) opensound.Play();
-        else if (closesound != null) closesound.Play();
-        else if (commmonAudio != null) commmonAudio.Play();
-    }
-
-    private IEnumerator SlideToPosition(Vector3 targetPos)
-    {
-        while (Vector3.Distance(transform.localPosition, targetPos) > 0.005f)
-        {
-            transform.localPosition = Vector3.Lerp(transform.localPosition, targetPos, Time.deltaTime * slideSpeed);
-            yield return null;
-        }
-        transform.localPosition = targetPos;
     }
 }
