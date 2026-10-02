@@ -8,36 +8,50 @@ public class aalo : MonoBehaviour
       public Camera fpscam;
       public GameObject note;
       public GameObject escreen;
+    private bool aaloActivatedEscreen = false;
+
+    void Awake()
+    {
+        if (fpscam == null) fpscam = GetComponent<Camera>();
+        if (fpscam == null) fpscam = Camera.main;
+    }
+
     // Update is called once per frame
     void Update()
     {
+        if (fpscam == null) return;
+
         Debug.DrawRay(
-    fpscam.transform.position,
-    fpscam.transform.forward * distance,
-    Color.red
-);
+            fpscam.transform.position,
+            fpscam.transform.forward * distance,
+            Color.red
+        );
 
-
-        
         RaycastHit hit;
-             if(Physics.Raycast(fpscam.transform.position,fpscam.transform.forward,out hit, distance)){
-        
-          
-                if ((hit.collider.gameObject.name == "note")){
-                escreen.SetActive(true);
-                if(Input.GetKeyDown(KeyCode.E))
-                {
-                  note.SetActive(true);
-                }
-                
-           
-            }
-            else
+        if (Physics.Raycast(fpscam.transform.position, fpscam.transform.forward, out hit, distance))
+        {
+            if (hit.collider != null && hit.collider.gameObject.name == "note")
             {
-                escreen.SetActive(false);
+                if (escreen != null)
+                {
+                    escreen.SetActive(true);
+                    aaloActivatedEscreen = true;
+                }
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    if (note != null) note.SetActive(true);
+                }
+                return;
             }
         }
+
+        // Only deactivate escreen if aalo was the script that activated it
+        if (aaloActivatedEscreen)
+        {
+            if (escreen != null) escreen.SetActive(false);
+            aaloActivatedEscreen = false;
         }
+    }
         
 
     }

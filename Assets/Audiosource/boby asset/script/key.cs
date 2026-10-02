@@ -10,8 +10,6 @@ public class key : MonoBehaviour, IInteractable
     [Header("UI Settings")]
     public GameObject keyAcquiredText; 
     public float textDisplayTime = 2.5f; 
-    [Tooltip("Shows 'Press E' when looking at the key")]
-    public GameObject hoverText;
     [Tooltip("Inventory icon shown when key is held")]
     public GameObject inventoryIcon;
 
@@ -20,14 +18,26 @@ public class key : MonoBehaviour, IInteractable
     void Start()
     {
         if (keyAcquiredText != null) keyAcquiredText.SetActive(false);
-        if (hoverText != null) hoverText.SetActive(false);
         if (inventoryIcon != null) inventoryIcon.SetActive(false);
     }
 
+    // Triggers the exact moment your raycast/crosshair looks at the object
     public void OnHoverEnter() 
     { 
         if (isPickedUp) return;
-        if (hoverText != null) hoverText.SetActive(true);
+        
+        Debug.Log("1. You looked at the key! Starting automatic pickup...");
+        StartCoroutine(PickupSequence());
+    }
+
+    public void OnHoverExit() 
+    { 
+        // Required by IInteractable, but left empty because pickup is instant
+    }
+    
+    public void Interact() 
+    {
+        // Left empty. We don't need a button press anymore.
     }
 
     private IEnumerator PickupSequence()
@@ -61,18 +71,5 @@ public class key : MonoBehaviour, IInteractable
         }
 
         Destroy(gameObject);
-    }
-
-    public void OnHoverExit() 
-    { 
-        if (hoverText != null) hoverText.SetActive(false);
-    }
-    public void Interact() 
-    {
-        if (isPickedUp) return; 
-        if (hoverText != null) hoverText.SetActive(false);
-        
-        Debug.Log("1. You pressed E to pick up the key! Starting pickup sequence...");
-        StartCoroutine(PickupSequence());
     }
 }
