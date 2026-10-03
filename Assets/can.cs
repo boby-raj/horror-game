@@ -3,17 +3,21 @@ using UnityEngine;
 /// <summary>
 /// Fuel Can script.
 /// Shows [E] prompt when player approaches or looks at the can.
-/// Pressing [E] collects the can, plays sound, hides prompt, and activates generator readiness.
+/// Pressing [E] collects ONLY this can, plays sound, hides prompt, and increments fuel count.
 /// </summary>
 public class lcan : MonoBehaviour, IInteractable
 {
+    // Global counter tracking how many fuel cans the player is currently holding
+    public static int playerFuelCount = 0;
+
+    // Frame throttle to prevent picking up multiple cans on the exact same frame
+    private static int lastPickupFrame = -1;
+
     [Header("UI Prompts")]
     [Tooltip("The [E] UI prompt on the screen (e.g. Press E to pick up)")]
     public GameObject escreen;
 
-    [Header("Objects & References")]
-    [Tooltip("The Jerry Can object in the scene to disappear when picked up (MANDATORY in lever_script)")]
-    public GameObject thep;
+    [Header("Optional Inventory Visuals")]
     [Tooltip("Optional held can or inventory object to appear upon pickup")]
     public GameObject tru;
 
@@ -21,9 +25,16 @@ public class lcan : MonoBehaviour, IInteractable
     public AudioSource source;
     public AudioClip sound;
 
+    [Header("Interaction Settings")]
+    [Tooltip("Maximum distance to allow pickup (prevents giant trigger box overlap)")]
+    public float maxPickupDistance = 4.5f;
+
     [Header("State")]
     public bool inarea = false;
     public bool isUsed = false;
+
+    // Legacy serialized field preserved for Unity scene compatibility
+    [HideInInspector] public GameObject thep;
 
     private void Start()
     {
@@ -42,25 +53,65 @@ public class lcan : MonoBehaviour, IInteractable
         // If player is inside the trigger zone around the can
         if (inarea)
         {
-            // Show [E] prompt when near
-            if (escreen != null && !escreen.activeSelf)
+            // Verify player is within actual proximity
+            if (IsPlayerCloseEnough())
             {
-                escreen.SetActive(true);
-            }
+                if (escreen != null && !escreen.activeSelf)
+                {
+                    escreen.SetActive(true);
+                }
 
-            // Press E to pick up
-            if (Input.GetKeyDown(KeyCode.E))
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    CollectFuelCan();
+                }
+            }
+            else
             {
-                CollectFuelCan();
+                if (escreen != null && escreen.activeSelf)
+                {
+                    escreen.SetActive(false);
+                }
             }
         }
+    }
+
+    private bool IsPlayerCloseEnough()
+    {
+        Camera cam = Camera.main;
+        if (cam != null)
+        {
+            float dist = Vector3.Distance(transform.position, cam.transform.position);
+            return dist <= maxPickupDistance;
+        }
+
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            float dist = Vector3.Distance(transform.position, player.transform.position);
+            return dist <= maxPickupDistance;
+        }
+
+        return true;
     }
 
     public void CollectFuelCan()
     {
         if (isUsed) return;
+
+        // Prevent picking up multiple cans on the exact same frame!
+        if (Time.frameCount == lastPickupFrame)
+        {
+            return;
+        }
+        lastPickupFrame = Time.frameCount;
+
         isUsed = true;
         inarea = false;
+
+        // Increment player's fuel inventory
+        playerFuelCount++;
+        Debug.Log($"[FuelCan] Picked up fuel can! Player is now holding: {playerFuelCount} can(s).");
 
         // 1. Hide the [E] prompt
         if (escreen != null) escreen.SetActive(false);
@@ -68,39 +119,24 @@ public class lcan : MonoBehaviour, IInteractable
         // 2. Play pickup sound
         if (sound != null)
         {
-            if (source != null)
-            {
-                source.PlayOneShot(sound);
-            }
-            else
-            {
-                AudioSource.PlayClipAtPoint(sound, transform.position);
-            }
+            AudioSource.PlayClipAtPoint(sound, transform.position);
         }
 
-        // 3. Enable held/inventory can if assigned
+        // 3. Enable held/inventory visual if assigned
         if (tru != null && tru != gameObject)
         {
             tru.SetActive(true);
         }
 
-        // 4. Disable the can so the generator knows we picked it up
-        if (thep != null)
-        {
-            thep.SetActive(false);
-        }
-
-        // Also notify GeneratorSystem if used in the project
+        // 4. Also notify GeneratorSystem if used in the project
         if (GeneratorSystem.Instance != null)
         {
             GeneratorSystem.Instance.isPlayerHoldingFuel = true;
+            GeneratorSystem.Instance.fuelPerCan = 60f;
         }
 
-        // Disable this can GameObject if it's not the same object as thep
-        if (gameObject != thep)
-        {
-            gameObject.SetActive(false);
-        }
+        // 5. Deactivate ONLY THIS specific can GameObject so other cans remain in the map!
+        gameObject.SetActive(false);
     }
 
     // --- Trigger Area Detection (Walking up to the can) ---
@@ -111,7 +147,10 @@ public class lcan : MonoBehaviour, IInteractable
         if (other.CompareTag("Player"))
         {
             inarea = true;
-            if (escreen != null) escreen.SetActive(true);
+            if (IsPlayerCloseEnough() && escreen != null)
+            {
+                escreen.SetActive(true);
+            }
         }
     }
 
@@ -123,7 +162,6 @@ public class lcan : MonoBehaviour, IInteractable
         {
             inarea = false;
             if (escreen != null) escreen.SetActive(false);
-            // Notice: We do NOT disable thep here! The can stays visible on the floor!
         }
     }
 
@@ -131,13 +169,19 @@ public class lcan : MonoBehaviour, IInteractable
     public void OnHoverEnter()
     {
         if (isUsed) return;
-        if (escreen != null) escreen.SetActive(true);
+        if (IsPlayerCloseEnough() && escreen != null)
+        {
+            escreen.SetActive(true);
+        }
     }
 
     public void OnHoverExit()
     {
         if (isUsed) return;
-        if (!inarea && escreen != null) escreen.SetActive(false);
+        if (!inarea && escreen != null)
+        {
+            escreen.SetActive(false);
+        }
     }
 
     public void Interact()
