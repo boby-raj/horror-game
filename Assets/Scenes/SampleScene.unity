@@ -31513,7 +31513,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 2a8b6c649677cca4ca8f2c03e5ac8175, type: 3}
       propertyPath: m_Controller
@@ -76734,26 +76734,68 @@ MonoBehaviour:
   m_GameObject: {fileID: 2024162382}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9dab4acf0bfab24394e5e716e3d6418, type: 3}
+  m_Script: {fileID: 11500000, guid: 23d4ccabac802464cb2c5fe437f2c56e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RampFollower
-  player: {fileID: 2086059390}
-  playerController: {fileID: 2086059394}
-  playerMovementScript: {fileID: 1047972685}
-  playerCamera: {fileID: 1047972682}
-  speed: 8
-  rotationSpeed: 12
-  stickToGroundForce: -15
-  groundLayer:
+  m_EditorClassIdentifier: Assembly-CSharp::enemychase
+  currentState: 0
+  targetCharacter: {fileID: 2086059390}
+  detectionRadius: 14
+  catchDistance: 3.2
+  maxVerticalCatchDifference: 3.5
+  fieldOfViewAngle: 120
+  closeSenseRange: 3
+  obstacleMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  catchDistance: 5
-  faceDistance: 1
-  vibrationIntensity: 0.25
-  vibrationDuration: 1.2
+  eyeHeight: 1.6
+  playerTargetHeight: 1.2
+  senseInterval: 0.1
+  detectFlashlight: 1
+  flashlightBonusDistance: 8
+  playerFlashlight: {fileID: 0}
+  waypoints: []
+  patrolSpeed: 2
+  chaseSpeed: 5
+  waypointWaitTime: 1.5
+  loseDistance: 20
+  loseSightGrace: 2
+  canHear: 1
+  randomRoamIfNoWaypoints: 1
+  roamRadius: 15
+  roamWaitTime: 2
+  roamTimeout: 12
+  searchDuration: 4
+  searchTurnSpeed: 90
+  investigateTimeout: 15
+  arriveTolerance: 0.4
+  destinationUpdateInterval: 0.2
+  isChasingParam: IsChasing
+  isSearchingParam: IsSearching
+  speedParam: Speed
+  caughtTriggerParam: Caught
+  chaseAnimatorSpeed: 1.6
+  chaseMusicSource: {fileID: 2024162383}
+  chaseMusicFadeSpeed: 2
+  jumpscareSource: {fileID: 1355989410}
+  jumpscareClip: {fileID: 8300000, guid: d0d4b0e639d0ce84eb072339fbaf2878, type: 3}
+  playerCamera: {fileID: 1047972682}
+  faceDistance: 1.2
+  vibrationIntensity: 0.5
+  angularShakeIntensity: 7.5
+  vibrationDuration: 1.6
   delayBeforeRespawn: 1
-  chaseAudioSource: {fileID: 2024162383}
-  jumpscareAudioSource: {fileID: 1355989410}
+  showBloodAttackEffect: 1
+  attackHitClip: {fileID: 8300000, guid: 7dcdbf3f286247e44b0d277b870c198e, type: 3}
+  disableOnCatch: []
+  onChaseStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  onChaseEnded:
+    m_PersistentCalls:
+      m_Calls: []
+  onPlayerCaught:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!143 &2024162385
 CharacterController:
   m_ObjectHideFlags: 0
