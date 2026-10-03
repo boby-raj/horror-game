@@ -43,6 +43,10 @@ public class lever_script : MonoBehaviour
     public GameObject timerPanel;
     [Tooltip("TextMeshPro text on the panel displaying the time")]
     public TextMeshProUGUI timerText;
+    [Tooltip("Normal text color for the timer")]
+    public Color timerTextColor = Color.white;
+    [Tooltip("Flashing alert color when low on fuel")]
+    public Color lowFuelWarningColor = new Color(1f, 0.2f, 0.2f);
     [Tooltip("Show atmospheric on-screen timer while generator is running (only used if no timerPanel is assigned)")]
     public bool showOnScreenTimer = true;
 
@@ -311,11 +315,11 @@ public class lever_script : MonoBehaviour
             if (currentRunTime <= 15f)
             {
                 bool flash = Mathf.PingPong(Time.time * 3f, 1f) > 0.4f;
-                timerText.color = flash ? new Color(1f, 0.2f, 0.2f) : new Color(0.8f, 0.5f, 0.1f);
+                timerText.color = flash ? lowFuelWarningColor : timerTextColor;
             }
             else
             {
-                timerText.color = new Color(0.2f, 1f, 0.5f); // Neon radar green
+                timerText.color = timerTextColor; // Crisp horror white
             }
         }
     }
