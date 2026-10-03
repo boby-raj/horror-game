@@ -1,46 +1,62 @@
-using System.Net.NetworkInformation;
 using UnityEngine;
- 
+
 public class lever_script : MonoBehaviour
 {
+    [Header("Generator & Lever Controls")]
     public Animator lv_animator;
     public GameObject lev_ui;
     public GameObject MANDATORY;
-public GameObject alllights;
+    public GameObject alllights;
 
+    [Header("Audio")]
     public AudioSource grator;
     public AudioClip start_sound;
-    
-    private bool inarea = false;
-    private bool isPulled = false;
+
+    [Header("Fuel Check")]
     public lcan can_script;
     public GameObject open_text;
     public GameObject close_text;
+
+    private bool inarea = false;
+    private bool isPulled = false;
+
     void Start()
     {
-        close_text.SetActive(false);
-        open_text.SetActive(false);
+        if (close_text != null) close_text.SetActive(false);
+        if (open_text != null) open_text.SetActive(false);
+        if (lev_ui != null) lev_ui.SetActive(false);
     }
 
     void Update()
-    {Debug.Log($"inarea:{inarea} isPulled:{isPulled} MANDATORY:{MANDATORY.activeSelf}");
-        if (inarea && !isPulled&&MANDATORY.activeSelf==false)
+    {
+        if (isPulled) return;
+
+        bool hasFuel = (can_script != null && can_script.isUsed) || 
+                       (MANDATORY != null && !MANDATORY.activeSelf);
+
+        if (inarea && !isPulled && hasFuel)
         {
-            lev_ui.SetActive(true);
-            
+            if (lev_ui != null && !lev_ui.activeSelf) lev_ui.SetActive(true);
+
             if (Input.GetKeyDown(KeyCode.E))
             {
-                lv_animator.enabled = true;
-                
-                grator.PlayOneShot(start_sound);
+                if (lv_animator != null) lv_animator.enabled = true;
+                if (grator != null && start_sound != null) grator.PlayOneShot(start_sound);
                 isPulled = true;
-                alllights.SetActive(true);
-                lev_ui.SetActive(false);
+                if (alllights != null) alllights.SetActive(true);
+                if (lev_ui != null) lev_ui.SetActive(false);
+                if (open_text != null) open_text.SetActive(false);
+                if (close_text != null) close_text.SetActive(false);
+
+                if (GeneratorSystem.Instance != null)
+                {
+                    GeneratorSystem.Instance.AddFuel(60f);
+                }
             }
         }
         else
         {
-            lev_ui.SetActive(false);
+            if (lev_ui != null && lev_ui.activeSelf) lev_ui.SetActive(false);
         }
     }
 
@@ -49,13 +65,19 @@ public GameObject alllights;
         if (other.CompareTag("Player"))
         {
             inarea = true;
-            if(!can_script.isUsed){
-             open_text.SetActive(true);
-        }else{
-              close_text.SetActive(true);
+
+            bool hasFuel = (can_script != null && can_script.isUsed) || 
+                           (MANDATORY != null && !MANDATORY.activeSelf);
+
+            if (!hasFuel)
+            {
+                if (open_text != null) open_text.SetActive(true);
+            }
+            else
+            {
+                if (close_text != null) close_text.SetActive(true);
+            }
         }
-        } 
-        
     }
 
     void OnTriggerExit(Collider other)
@@ -63,9 +85,9 @@ public GameObject alllights;
         if (other.CompareTag("Player"))
         {
             inarea = false;
-            open_text.SetActive(false);
-        close_text.SetActive(false);
-        } 
-        
+            if (open_text != null) open_text.SetActive(false);
+            if (close_text != null) close_text.SetActive(false);
+            if (lev_ui != null) lev_ui.SetActive(false);
+        }
     }
 }
