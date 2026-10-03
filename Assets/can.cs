@@ -25,10 +25,6 @@ public class lcan : MonoBehaviour, IInteractable
     public AudioSource source;
     public AudioClip sound;
 
-    [Header("Interaction Settings")]
-    [Tooltip("Maximum distance to allow pickup (prevents giant trigger box overlap)")]
-    public float maxPickupDistance = 4.5f;
-
     [Header("State")]
     public bool inarea = false;
     public bool isUsed = false;
@@ -38,7 +34,13 @@ public class lcan : MonoBehaviour, IInteractable
 
     private void Start()
     {
-        // Make sure the [E] prompt is hidden at start
+        // Auto-find [E] UI if not assigned or broken
+        if (escreen == null)
+        {
+            GameObject eObj = GameObject.Find("[E]");
+            if (eObj != null) escreen = eObj;
+        }
+
         if (escreen != null) escreen.SetActive(false);
 
         // Auto-detect AudioSource if not assigned
@@ -50,60 +52,27 @@ public class lcan : MonoBehaviour, IInteractable
     {
         if (isUsed) return;
 
-        // If player is inside the trigger zone around the can
+        // If player is inside the trigger zone or hovering
         if (inarea)
         {
-            // Verify player is within actual proximity
-            if (IsPlayerCloseEnough())
+            if (escreen != null && !escreen.activeSelf)
             {
-                if (escreen != null && !escreen.activeSelf)
-                {
-                    escreen.SetActive(true);
-                }
-
-                if (Input.GetKeyDown(KeyCode.E))
-                {
-                    CollectFuelCan();
-                }
+                escreen.SetActive(true);
             }
-            else
+
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                if (escreen != null && escreen.activeSelf)
-                {
-                    escreen.SetActive(false);
-                }
+                CollectFuelCan();
             }
         }
-    }
-
-    private bool IsPlayerCloseEnough()
-    {
-        Camera cam = Camera.main;
-        if (cam != null)
-        {
-            float dist = Vector3.Distance(transform.position, cam.transform.position);
-            return dist <= maxPickupDistance;
-        }
-
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player != null)
-        {
-            float dist = Vector3.Distance(transform.position, player.transform.position);
-            return dist <= maxPickupDistance;
-        }
-
-        return true;
     }
 
     public void CollectFuelCan()
     {
         if (isUsed) return;
 
-        // Prevent picking up multiple cans on the exact same frame!
-        if (Time.frameCount == lastPickupFrame)
-        {
-            return;
-        }
+        // Prevent picking up multiple cans on the exact same frame
+        if (Time.frameCount == lastPickupFrame) return;
         lastPickupFrame = Time.frameCount;
 
         isUsed = true;
@@ -119,7 +88,14 @@ public class lcan : MonoBehaviour, IInteractable
         // 2. Play pickup sound
         if (sound != null)
         {
-            AudioSource.PlayClipAtPoint(sound, transform.position);
+            if (source != null)
+            {
+                source.PlayOneShot(sound);
+            }
+            else
+            {
+                AudioSource.PlayClipAtPoint(sound, transform.position);
+            }
         }
 
         // 3. Enable held/inventory visual if assigned
@@ -135,7 +111,8 @@ public class lcan : MonoBehaviour, IInteractable
             GeneratorSystem.Instance.fuelPerCan = 60f;
         }
 
-        // 5. Deactivate ONLY THIS specific can GameObject so other cans remain in the map!
+        // 5. Deactivate ONLY THIS specific can GameObject!
+        // We DO NOT deactivate 'thep' so other cans remain in the scene!
         gameObject.SetActive(false);
     }
 
@@ -144,13 +121,10 @@ public class lcan : MonoBehaviour, IInteractable
     {
         if (isUsed) return;
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.GetComponent<CharacterController>() != null || other.name.Contains("Capsule"))
         {
             inarea = true;
-            if (IsPlayerCloseEnough() && escreen != null)
-            {
-                escreen.SetActive(true);
-            }
+            if (escreen != null) escreen.SetActive(true);
         }
     }
 
@@ -158,7 +132,7 @@ public class lcan : MonoBehaviour, IInteractable
     {
         if (isUsed) return;
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.GetComponent<CharacterController>() != null || other.name.Contains("Capsule"))
         {
             inarea = false;
             if (escreen != null) escreen.SetActive(false);
@@ -169,19 +143,15 @@ public class lcan : MonoBehaviour, IInteractable
     public void OnHoverEnter()
     {
         if (isUsed) return;
-        if (IsPlayerCloseEnough() && escreen != null)
-        {
-            escreen.SetActive(true);
-        }
+        inarea = true;
+        if (escreen != null) escreen.SetActive(true);
     }
 
     public void OnHoverExit()
     {
         if (isUsed) return;
-        if (!inarea && escreen != null)
-        {
-            escreen.SetActive(false);
-        }
+        inarea = false;
+        if (escreen != null) escreen.SetActive(false);
     }
 
     public void Interact()

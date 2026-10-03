@@ -4704,9 +4704,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87911acfcf7cd5741836ec4e0d7752c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::lcan
-  escreen: {fileID: 358648462}
-  thep: {fileID: 1848871802}
-  tru: {fileID: 130577078}
+  escreen: {fileID: 901663477}
+  thep: {fileID: 0}
+  tru: {fileID: 0}
   source: {fileID: 130577080}
   sound: {fileID: 8300000, guid: c192bba73aabc0e46abf05421f650c88, type: 3}
   inarea: 0
