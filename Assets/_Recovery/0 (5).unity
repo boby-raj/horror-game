@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!29 &1
 OcclusionCullingSettings:
@@ -1553,7 +1553,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aff4833db8e2b14aa0f0b6071c41e5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Formats.USD.Runtime::Unity.Formats.USD.UsdAsset
-  m_usdFile: c:/Users/Boby/Downloads/Table.usdz
+  m_usdFile: 
   m_projectAssetPath: Assets/
   m_usdRootPath: /
   m_usdTimeOffset: 0
@@ -2715,7 +2715,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aff4833db8e2b14aa0f0b6071c41e5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Formats.USD.Runtime::Unity.Formats.USD.UsdAsset
-  m_usdFile: c:/Users/Boby/Downloads/Table.usdz
+  m_usdFile: 
   m_projectAssetPath: Assets/
   m_usdRootPath: /
   m_usdTimeOffset: 0
@@ -35630,7 +35630,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: USD/SrpVertexColor
-  m_Shader: {fileID: 4800000, guid: a42158c4b633a5b4285051ceeaa601ae, type: 3}
+  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -56976,7 +56976,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4aff4833db8e2b14aa0f0b6071c41e5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Formats.USD.Runtime::Unity.Formats.USD.UsdAsset
-  m_usdFile: c:/Users/Boby/Downloads/Lever_Power_Switch.usdz
+  m_usdFile: 
   m_projectAssetPath: Assets/
   m_usdRootPath: /scene
   m_usdTimeOffset: 0

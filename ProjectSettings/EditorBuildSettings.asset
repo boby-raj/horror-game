@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/enemy trail.unity
+    guid: c2e0adc5dd563d149a0eba953afc2139
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9874d2a7882c838469f1b326291eb612, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
