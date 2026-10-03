@@ -10,7 +10,7 @@ using TMPro;
 /// - Automatically shuts off engine and lights when time expires.
 /// - Allows refueling again with another fuel can.
 /// </summary>
-public class lever_script : MonoBehaviour
+public class lever_script : MonoBehaviour, IInteractable
 {
     [Header("Generator & Lever Controls")]
     public Animator lv_animator;
@@ -90,50 +90,11 @@ public class lever_script : MonoBehaviour
         // 2. Interaction logic when player is near the generator
         if (inarea)
         {
-            bool hasFuel = HasFuel();
+            UpdateInteractionPrompts();
 
-            if (!isRunning)
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                // Generator is OFFLINE
-                if (hasFuel)
-                {
-                    if (close_text != null && !close_text.activeSelf) close_text.SetActive(true);
-                    if (open_text != null && open_text.activeSelf) open_text.SetActive(false);
-                    if (lev_ui != null && !lev_ui.activeSelf) lev_ui.SetActive(true);
-
-                    if (Input.GetKeyDown(KeyCode.E))
-                    {
-                        FuelAndStartGenerator();
-                    }
-                }
-                else
-                {
-                    if (open_text != null && !open_text.activeSelf) open_text.SetActive(true);
-                    if (close_text != null && close_text.activeSelf) close_text.SetActive(false);
-                    if (lev_ui != null && lev_ui.activeSelf) lev_ui.SetActive(false);
-                }
-            }
-            else
-            {
-                // Generator is RUNNING
-                if (hasFuel && allowRefuelWhileRunning)
-                {
-                    if (close_text != null && !close_text.activeSelf) close_text.SetActive(true);
-                    if (open_text != null && open_text.activeSelf) open_text.SetActive(false);
-                    if (lev_ui != null && !lev_ui.activeSelf) lev_ui.SetActive(true);
-
-                    if (Input.GetKeyDown(KeyCode.E))
-                    {
-                        AddFuelWhileRunning();
-                    }
-                }
-                else
-                {
-                    // While running and no fuel held, don't show prompts
-                    if (close_text != null && close_text.activeSelf) close_text.SetActive(false);
-                    if (open_text != null && open_text.activeSelf) open_text.SetActive(false);
-                    if (lev_ui != null && lev_ui.activeSelf) lev_ui.SetActive(false);
-                }
+                Interact();
             }
         }
     }
@@ -324,46 +285,114 @@ public class lever_script : MonoBehaviour
         }
     }
 
+    private bool IsPlayerCollider(Collider other)
+    {
+        if (other == null) return false;
+        return other.CompareTag("Player") ||
+               other.GetComponent<CharacterController>() != null ||
+               other.name.IndexOf("Capsule", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               other.name.IndexOf("Player", System.StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (IsPlayerCollider(other))
         {
             inarea = true;
+            UpdateInteractionPrompts();
+        }
+    }
 
-            if (!isRunning)
-            {
-                if (HasFuel())
-                {
-                    if (close_text != null) close_text.SetActive(true);
-                    if (lev_ui != null) lev_ui.SetActive(true);
-                    if (open_text != null) open_text.SetActive(false);
-                }
-                else
-                {
-                    if (open_text != null) open_text.SetActive(true);
-                    if (close_text != null) close_text.SetActive(false);
-                    if (lev_ui != null) lev_ui.SetActive(false);
-                }
-            }
-            else
-            {
-                if (HasFuel() && allowRefuelWhileRunning)
-                {
-                    if (close_text != null) close_text.SetActive(true);
-                    if (lev_ui != null) lev_ui.SetActive(true);
-                }
-            }
+    private void OnTriggerStay(Collider other)
+    {
+        if (!inarea && IsPlayerCollider(other))
+        {
+            inarea = true;
+            UpdateInteractionPrompts();
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (IsPlayerCollider(other))
         {
             inarea = false;
-            if (open_text != null) open_text.SetActive(false);
+            HideAllPrompts();
+        }
+    }
+
+    private void UpdateInteractionPrompts()
+    {
+        bool hasFuel = HasFuel();
+
+        if (!isRunning)
+        {
+            if (hasFuel)
+            {
+                if (close_text != null) close_text.SetActive(true);
+                if (lev_ui != null) lev_ui.SetActive(true);
+                if (open_text != null) open_text.SetActive(false);
+            }
+            else
+            {
+                if (open_text != null) open_text.SetActive(true);
+                if (close_text != null) close_text.SetActive(false);
+                if (lev_ui != null) lev_ui.SetActive(false);
+            }
+        }
+        else
+        {
+            if (hasFuel && allowRefuelWhileRunning)
+            {
+                if (close_text != null) close_text.SetActive(true);
+                if (lev_ui != null) lev_ui.SetActive(true);
+                if (open_text != null) open_text.SetActive(false);
+            }
+            else
+            {
+                HideAllPrompts();
+            }
+        }
+    }
+
+    private void HideAllPrompts()
+    {
+        if (open_text != null) open_text.SetActive(false);
+        if (close_text != null) close_text.SetActive(false);
+        if (lev_ui != null) lev_ui.SetActive(false);
+    }
+
+    // --- IInteractable Implementation (Looking directly at generator/lever with crosshair) ---
+    public void OnHoverEnter()
+    {
+        inarea = true;
+        UpdateInteractionPrompts();
+    }
+
+    public void OnHoverExit()
+    {
+        inarea = false;
+        HideAllPrompts();
+    }
+
+    public void Interact()
+    {
+        if (HasFuel())
+        {
+            if (!isRunning)
+            {
+                FuelAndStartGenerator();
+            }
+            else if (allowRefuelWhileRunning)
+            {
+                AddFuelWhileRunning();
+            }
+        }
+        else if (!isRunning)
+        {
+            // Flash NEED FUEL prompt
+            if (open_text != null) open_text.SetActive(true);
             if (close_text != null) close_text.SetActive(false);
-            if (lev_ui != null) lev_ui.SetActive(false);
         }
     }
 
