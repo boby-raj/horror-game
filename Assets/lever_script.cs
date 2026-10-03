@@ -39,9 +39,11 @@ public class lever_script : MonoBehaviour
     public bool allowRefuelWhileRunning = true;
 
     [Header("UI Counter Display")]
-    [Tooltip("Optional TextMeshPro on Canvas to show generator timer")]
+    [Tooltip("Panel with background image holding the timer UI")]
+    public GameObject timerPanel;
+    [Tooltip("TextMeshPro text on the panel displaying the time")]
     public TextMeshProUGUI timerText;
-    [Tooltip("Show atmospheric on-screen timer while generator is running")]
+    [Tooltip("Show atmospheric on-screen timer while generator is running (only used if no timerPanel is assigned)")]
     public bool showOnScreenTimer = true;
 
     private bool inarea = false;
@@ -52,6 +54,7 @@ public class lever_script : MonoBehaviour
         if (close_text != null) close_text.SetActive(false);
         if (open_text != null) open_text.SetActive(false);
         if (lev_ui != null) lev_ui.SetActive(false);
+        if (timerPanel != null) timerPanel.SetActive(false);
 
         // Ensure lights start OFF if generator is not running
         if (!isRunning && alllights != null)
@@ -192,6 +195,12 @@ public class lever_script : MonoBehaviour
             GeneratorSystem.Instance.AddFuel(generatorRunDuration);
         }
 
+        // Show timer UI panel if assigned
+        if (timerPanel != null)
+        {
+            timerPanel.SetActive(true);
+        }
+
         Debug.Log($"[Generator] Started! Running for {generatorRunDuration} seconds.");
     }
 
@@ -269,6 +278,11 @@ public class lever_script : MonoBehaviour
             timerText.text = "GENERATOR: OFFLINE";
         }
 
+        if (timerPanel != null)
+        {
+            timerPanel.SetActive(false);
+        }
+
         Debug.Log("[Generator] Fuel expired! Generator stopped. Lights turned OFF.");
 
         // If player is still standing in the generator area, update prompt
@@ -291,7 +305,18 @@ public class lever_script : MonoBehaviour
         {
             int minutes = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) / 60f);
             int seconds = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) % 60f);
-            timerText.text = string.Format("GENERATOR: {0:00}:{1:00}", minutes, seconds);
+            timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+
+            // Atmospheric low-fuel warning: red flashing when under 15 seconds
+            if (currentRunTime <= 15f)
+            {
+                bool flash = Mathf.PingPong(Time.time * 3f, 1f) > 0.4f;
+                timerText.color = flash ? new Color(1f, 0.2f, 0.2f) : new Color(0.8f, 0.5f, 0.1f);
+            }
+            else
+            {
+                timerText.color = new Color(0.2f, 1f, 0.5f); // Neon radar green
+            }
         }
     }
 
@@ -340,6 +365,8 @@ public class lever_script : MonoBehaviour
 
     private void OnGUI()
     {
+        // Don't render OnGUI if Canvas timerPanel / timerText is present
+        if (timerPanel != null || timerText != null) return;
         if (!isRunning || !showOnScreenTimer) return;
 
         if (timerStyle == null)
