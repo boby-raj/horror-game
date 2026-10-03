@@ -42158,7 +42158,7 @@ MonoBehaviour:
   isRunning: 0
   allowRefuelWhileRunning: 1
   timerPanel: {fileID: 999100000}
-  timerText: {fileID: 999100004}
+  timerText: {fileID: 999100007}
   timerTextColor: {r: 1, g: 1, b: 1, a: 1}
   lowFuelWarningColor: {r: 1, g: 0.2, b: 0.2, a: 1}
   showOnScreenTimer: 1

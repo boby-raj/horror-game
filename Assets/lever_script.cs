@@ -43,18 +43,23 @@ public class lever_script : MonoBehaviour, IInteractable
     public GameObject timerPanel;
     [Tooltip("TextMeshPro text on the panel displaying the time")]
     public TextMeshProUGUI timerText;
-    [Tooltip("Normal text color for the timer")]
+    [Tooltip("Text color for the timer (preserved from user's settings)")]
     public Color timerTextColor = Color.white;
-    [Tooltip("Flashing alert color when low on fuel")]
-    public Color lowFuelWarningColor = new Color(1f, 0.2f, 0.2f);
-    [Tooltip("Show atmospheric on-screen timer while generator is running (only used if no timerPanel is assigned)")]
+    [Tooltip("Show atmospheric on-screen timer while generator is running (fallback if no canvas text is active)")]
     public bool showOnScreenTimer = true;
 
     private bool inarea = false;
     private GUIStyle timerStyle;
 
+    private void Awake()
+    {
+        ResolveTimerReferences();
+    }
+
     private void Start()
     {
+        ResolveTimerReferences();
+
         if (close_text != null) close_text.SetActive(false);
         if (open_text != null) open_text.SetActive(false);
         if (lev_ui != null) lev_ui.SetActive(false);
@@ -69,6 +74,42 @@ public class lever_script : MonoBehaviour, IInteractable
         if (grator == null)
         {
             grator = GetComponent<AudioSource>();
+        }
+    }
+
+    /// <summary>
+    /// Auto-resolves timerText if unassigned or if linked as GameObject in scene YAML.
+    /// Preserves the user's chosen text color.
+    /// </summary>
+    public void ResolveTimerReferences()
+    {
+        if (timerText == null && timerPanel != null)
+        {
+            timerText = timerPanel.GetComponentInChildren<TextMeshProUGUI>(true);
+        }
+
+        if (timerText == null)
+        {
+            TextMeshProUGUI[] allTMP = FindObjectsByType<TextMeshProUGUI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var tmp in allTMP)
+            {
+                if (tmp.gameObject.name.IndexOf("Timer", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    tmp.gameObject.name.IndexOf("Counter", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    timerText = tmp;
+                    if (timerPanel == null && tmp.transform.parent != null)
+                    {
+                        timerPanel = tmp.transform.parent.gameObject;
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Keep the exact text colour the user kept on the UI component
+        if (timerText != null)
+        {
+            timerTextColor = timerText.color;
         }
     }
 
@@ -165,6 +206,12 @@ public class lever_script : MonoBehaviour, IInteractable
         {
             timerPanel.SetActive(true);
         }
+        else if (timerText != null)
+        {
+            timerText.gameObject.SetActive(true);
+        }
+
+        UpdateTimerDisplay();
 
         Debug.Log($"[Generator] Started! Running for {generatorRunDuration} seconds.");
     }
@@ -240,7 +287,7 @@ public class lever_script : MonoBehaviour, IInteractable
 
         if (timerText != null)
         {
-            timerText.text = "GENERATOR: OFFLINE";
+            timerText.text = "00:00";
         }
 
         if (timerPanel != null)
@@ -266,22 +313,19 @@ public class lever_script : MonoBehaviour, IInteractable
 
     private void UpdateTimerDisplay()
     {
+        if (timerText == null)
+        {
+            ResolveTimerReferences();
+        }
+
         if (timerText != null)
         {
             int minutes = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) / 60f);
             int seconds = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) % 60f);
             timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 
-            // Atmospheric low-fuel warning: red flashing when under 15 seconds
-            if (currentRunTime <= 15f)
-            {
-                bool flash = Mathf.PingPong(Time.time * 3f, 1f) > 0.4f;
-                timerText.color = flash ? lowFuelWarningColor : timerTextColor;
-            }
-            else
-            {
-                timerText.color = timerTextColor; // Crisp horror white
-            }
+            // Keep the exact text colour the user kept
+            timerText.color = timerTextColor;
         }
     }
 
@@ -398,8 +442,8 @@ public class lever_script : MonoBehaviour, IInteractable
 
     private void OnGUI()
     {
-        // Don't render OnGUI if Canvas timerPanel / timerText is present
-        if (timerPanel != null || timerText != null) return;
+        // Don't render OnGUI if Canvas timerText is active and displaying
+        if (timerText != null && timerText.gameObject.activeInHierarchy) return;
         if (!isRunning || !showOnScreenTimer) return;
 
         if (timerStyle == null)
