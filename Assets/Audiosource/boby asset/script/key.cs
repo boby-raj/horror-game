@@ -10,6 +10,8 @@ public class key : MonoBehaviour, IInteractable
     [Header("UI Settings")]
     public GameObject keyAcquiredText; 
     public float textDisplayTime = 2.5f; 
+    [Tooltip("Shows 'Press E to Pick Up' when player looks at the key")]
+    public GameObject hoverText;
     [Tooltip("Inventory icon shown when key is held")]
     public GameObject inventoryIcon;
 
@@ -18,26 +20,29 @@ public class key : MonoBehaviour, IInteractable
     void Start()
     {
         if (keyAcquiredText != null) keyAcquiredText.SetActive(false);
+        if (hoverText != null) hoverText.SetActive(false);
         if (inventoryIcon != null) inventoryIcon.SetActive(false);
     }
 
-    // Triggers the exact moment your raycast/crosshair looks at the object
+    // Show "Press E" prompt when player looks at the key
     public void OnHoverEnter() 
     { 
         if (isPickedUp) return;
-        
-        Debug.Log("1. You looked at the key! Starting automatic pickup...");
-        StartCoroutine(PickupSequence());
+        if (hoverText != null) hoverText.SetActive(true);
     }
 
+    // Hide "Press E" prompt when player looks away
     public void OnHoverExit() 
     { 
-        // Required by IInteractable, but left empty because pickup is instant
+        if (hoverText != null) hoverText.SetActive(false);
     }
-    
+
+    // Triggered when player presses E while looking at the key
     public void Interact() 
     {
-        // Left empty. We don't need a button press anymore.
+        if (isPickedUp) return;
+        if (hoverText != null) hoverText.SetActive(false);
+        StartCoroutine(PickupSequence());
     }
 
     private IEnumerator PickupSequence()
@@ -46,23 +51,26 @@ public class key : MonoBehaviour, IInteractable
         
         if (pickupSound != null) AudioSource.PlayClipAtPoint(pickupSound, transform.position);
         
-        // CHECK IF THE DOOR IS LINKED PROPERLY
+        // Tell the door/box that the player now has the key
         if (doorToUnlock != null)
         {
             doorToUnlock.have_key = true;
             doorToUnlock.keyIconToDisable = inventoryIcon;
-            Debug.Log("2. SUCCESS! The key successfully sent the unlock signal to the door/box.");
+            Debug.Log("SUCCESS! Key picked up and unlock signal sent to door/box.");
         }
         else
         {
-            Debug.LogError("2. FAIL! The doorToUnlock slot is EMPTY in the inspector! The key doesn't know what to unlock.");
+            Debug.LogError("FAIL! The doorToUnlock slot is EMPTY in the inspector!");
         }
 
+        // Instantly hide the key model
         foreach (Renderer r in GetComponentsInChildren<Renderer>()) r.enabled = false;
         foreach (Collider c in GetComponentsInChildren<Collider>()) c.enabled = false;
 
+        // Show inventory icon in top-right
         if (inventoryIcon != null) inventoryIcon.SetActive(true);
 
+        // Show "Key Acquired" text briefly
         if (keyAcquiredText != null) 
         {
             keyAcquiredText.SetActive(true);
