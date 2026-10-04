@@ -49,6 +49,7 @@ public class lever_script : MonoBehaviour, IInteractable
     public bool showOnScreenTimer = true;
 
     private bool inarea = false;
+    private GUIStyle timerStyle;
 
     private void Awake()
     {
@@ -439,5 +440,41 @@ public class lever_script : MonoBehaviour, IInteractable
         }
     }
 
-    // OnGUI fallback removed in favor of TextMeshProUGUI on Canvas.
+    private void OnGUI()
+    {
+        // Don't render OnGUI if Canvas timerText is active and displaying
+        if (timerText != null && timerText.gameObject.activeInHierarchy) return;
+        if (!isRunning || !showOnScreenTimer) return;
+
+        if (timerStyle == null)
+        {
+            timerStyle = new GUIStyle(GUI.skin.box);
+            timerStyle.fontSize = 18;
+            timerStyle.fontStyle = FontStyle.Bold;
+            timerStyle.alignment = TextAnchor.MiddleCenter;
+        }
+
+        int minutes = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) / 60f);
+        int seconds = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) % 60f);
+
+        // Flashing effect when low on time (< 15 seconds)
+        if (currentRunTime <= 15f)
+        {
+            bool flash = Mathf.PingPong(Time.time * 3f, 1f) > 0.5f;
+            timerStyle.normal.textColor = flash ? Color.red : Color.yellow;
+        }
+        else
+        {
+            timerStyle.normal.textColor = new Color(0.2f, 1f, 0.4f); // Neon green
+        }
+
+        string text = string.Format("⚡ POWER: {0:00}:{1:00}", minutes, seconds);
+
+        float width = 230f;
+        float height = 40f;
+        float x = (Screen.width - width) / 2f;
+        float y = 20f;
+
+        GUI.Box(new Rect(x, y, width, height), text, timerStyle);
+    }
 }
