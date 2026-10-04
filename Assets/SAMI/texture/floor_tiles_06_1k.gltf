@@ -112,7 +112,7 @@
     {
       "mimeType": "image/jpeg",
       "name": "floor_tiles_06_nor_gl_4k",
-      "uri": "textures/floor_tiles_06_nor_gl_1k.jpg"
+      "uri": "textures/floor_tiles_06_nor_gl_1k.exr"
     },
     {
       "mimeType": "image/jpeg",
@@ -122,7 +122,7 @@
     {
       "mimeType": "image/jpeg",
       "name": "floor_tiles_06_rough_4k",
-      "uri": "textures/floor_tiles_06_rough_1k.jpg"
+      "uri": "textures/floor_tiles_06_rough_1k.exr"
     }
   ],
   "accessors": [
