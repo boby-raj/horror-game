@@ -131,6 +131,13 @@ public class OpeningManager : MonoBehaviour
         if (controlsUnlocked) return;
         controlsUnlocked = true;
 
+        // Smoothly align player orientation to cutscene camera direction
+        if (Camera.main != null && playerMovementScript != null)
+        {
+            Vector3 euler = Camera.main.transform.eulerAngles;
+            playerMovementScript.transform.rotation = Quaternion.Euler(0f, euler.y, 0f);
+        }
+
         // 1. Give player their movement and look control back
         if (playerMovementScript != null)
         {
