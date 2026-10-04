@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "horror game.slnx"
+    "dotnet.defaultSolution": "horror-game.slnx"
 }
