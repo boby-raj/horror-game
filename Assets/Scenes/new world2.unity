@@ -20,12 +20,12 @@ RenderSettings:
   m_FogDensity: 0.034
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.57758063, g: 0.57758063, b: 0.57758063, a: 1}
+  m_AmbientSkyColor: {r: 0, g: 0, b: 0, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 0
   m_AmbientMode: 3
-  m_SubtractiveShadowColor: {r: 0.7843138, g: 0.7843138, b: 0.7843138, a: 1}
+  m_SubtractiveShadowColor: {r: 0, g: 0, b: 0, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.468
   m_FlareStrength: 1
@@ -4216,7 +4216,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 1926804995}
+  m_Mesh: {fileID: 1753849935}
 --- !u!33 &90152201
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -8048,7 +8048,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 1753849935}
+  m_Mesh: {fileID: 765914154}
 --- !u!33 &204434406
 MeshFilter:
   m_ObjectHideFlags: 10
@@ -58603,7 +58603,9 @@ MonoBehaviour:
   currentRunTime: 0
   isRunning: 0
   allowRefuelWhileRunning: 1
+  timerPanel: {fileID: 0}
   timerText: {fileID: 0}
+  timerTextColor: {r: 1, g: 1, b: 1, a: 1}
   showOnScreenTimer: 1
 --- !u!1001 &1074152112
 PrefabInstance:
