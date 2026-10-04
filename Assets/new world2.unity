@@ -11824,6 +11824,21 @@ PlayableDirector:
     m_References:
     - 3e9718bf5a0675c4fb49cb8478542deb: {fileID: 764200206}
     - cb6f3e8928c77c947bd08abf65de02dc: {fileID: 1044179722}
+--- !u!4 &373442451
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 373442449}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 7.88362, y: 15.26685, z: -60.29669}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &373442452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11841,22 +11856,7 @@ MonoBehaviour:
   playerLookScript: {fileID: 1047972684}
   mainCameraBrain: {fileID: 1047972691}
   fadeFromBlack: 1
-  fadeDuration: 2.5
---- !u!4 &373442451
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 373442449}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.88362, y: 15.26685, z: -60.29669}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  fadeDuration: 1
 --- !u!1 &377278812
 GameObject:
   m_ObjectHideFlags: 0
@@ -38494,7 +38494,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8635942509195034392, guid: 6ed0bc04ade03464d982095e6ead6386, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 19.99997
+      value: 19.999939
       objectReference: {fileID: 0}
     - target: {fileID: 8635942509195034392, guid: 6ed0bc04ade03464d982095e6ead6386, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -71017,7 +71017,7 @@ PrefabInstance:
     - target: {fileID: 4299336652951047209, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: -3856416225308851307, guid: e84f95aef63f4ce48bf7ff432980a2e8, type: 3}
+      objectReference: {fileID: 2100000, guid: 74d4676511f4e6143bada89a993e143f, type: 2}
     - target: {fileID: 4857363886052246993, guid: dc29aba3c38c47e41bd0a951aab9cb87, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.02
@@ -73612,7 +73612,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07b8be1a146a4a44da629a2c74886814, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSaveManager
-  ignoreSaveInEditor: 0
+  ignoreSaveInEditor: 1
 --- !u!95 &2086059400
 Animator:
   serializedVersion: 7

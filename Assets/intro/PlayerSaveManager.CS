@@ -4,7 +4,7 @@ public class PlayerSaveManager : MonoBehaviour
 {
     [Header("Editor Testing")]
     [Tooltip("If checked, the player will ALWAYS spawn at the exact position placed in the scene, ignoring saved game coordinates.")]
-    public bool ignoreSaveInEditor = false;
+    public bool ignoreSaveInEditor = true;
 
     void Start()
     {

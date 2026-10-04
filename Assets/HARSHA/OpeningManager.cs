@@ -21,7 +21,7 @@ public class OpeningManager : MonoBehaviour
     [Header("Atmospheric Wake-Up Polish")]
     [Tooltip("Simulates waking up / opening eyes by fading in from black")]
     public bool fadeFromBlack = true;
-    public float fadeDuration = 2.5f;
+    public float fadeDuration = 1.0f;
 
     private Texture2D blackTexture;
     private float startTime;
@@ -60,6 +60,13 @@ public class OpeningManager : MonoBehaviour
     {
         AutoFindReferences();
 
+        // Ensure director plays from time 0
+        if (timelineDirector != null)
+        {
+            timelineDirector.time = 0;
+            timelineDirector.Play();
+        }
+
         // Freeze player movement and mouse look at the start of cutscene
         if (playerMovementScript != null)
         {
@@ -74,10 +81,10 @@ public class OpeningManager : MonoBehaviour
 
     void Update()
     {
-        // Safety check: if timeline finished or stopped and controls are still locked, unlock them
+        // Safety check: if timeline finished or reached end, unlock controls
         if (!controlsUnlocked && timelineDirector != null)
         {
-            if (timelineDirector.state != PlayState.Playing && timelineDirector.time >= timelineDirector.duration - 0.05)
+            if (timelineDirector.time >= timelineDirector.duration - 0.05 && timelineDirector.time > 1.0)
             {
                 UnlockControls(timelineDirector);
             }
@@ -123,6 +130,13 @@ public class OpeningManager : MonoBehaviour
     {
         if (controlsUnlocked) return;
         controlsUnlocked = true;
+
+        // Smoothly align player orientation to cutscene camera direction
+        if (Camera.main != null && playerMovementScript != null)
+        {
+            Vector3 euler = Camera.main.transform.eulerAngles;
+            playerMovementScript.transform.rotation = Quaternion.Euler(0f, euler.y, 0f);
+        }
 
         // 1. Give player their movement and look control back
         if (playerMovementScript != null)
