@@ -76,6 +76,14 @@ public class lever_script : MonoBehaviour, IInteractable
             {
                 alllights.SetActive(true);
             }
+            if (timerPanel != null)
+            {
+                timerPanel.SetActive(true);
+            }
+            if (timerText != null)
+            {
+                timerText.gameObject.SetActive(true);
+            }
             if (grator != null && start_sound != null)
             {
                 grator.clip = start_sound;
@@ -105,6 +113,15 @@ public class lever_script : MonoBehaviour, IInteractable
     /// </summary>
     public void ResolveTimerReferences()
     {
+        if (timerPanel == null)
+        {
+            GameObject panel = GameObject.Find("GeneratorTimerPanel");
+            if (panel != null)
+            {
+                timerPanel = panel;
+            }
+        }
+
         if (timerText == null && timerPanel != null)
         {
             timerText = timerPanel.GetComponentInChildren<TextMeshProUGUI>(true);
@@ -335,9 +352,21 @@ public class lever_script : MonoBehaviour, IInteractable
 
     private void UpdateTimerDisplay()
     {
-        if (timerText == null)
+        if (timerText == null || timerPanel == null)
         {
             ResolveTimerReferences();
+        }
+
+        if (isRunning)
+        {
+            if (timerPanel != null && !timerPanel.activeSelf)
+            {
+                timerPanel.SetActive(true);
+            }
+            if (timerText != null && !timerText.gameObject.activeSelf)
+            {
+                timerText.gameObject.SetActive(true);
+            }
         }
 
         if (timerText != null)
@@ -464,8 +493,8 @@ public class lever_script : MonoBehaviour, IInteractable
 
     private void OnGUI()
     {
-        // Don't render OnGUI if Canvas timerText is active and displaying
-        if (timerText != null && timerText.gameObject.activeInHierarchy) return;
+        // Don't render legacy OnGUI if Canvas timer UI exists or showOnScreenTimer is disabled
+        if (timerText != null || timerPanel != null) return;
         if (!isRunning || !showOnScreenTimer) return;
 
         if (timerStyle == null)

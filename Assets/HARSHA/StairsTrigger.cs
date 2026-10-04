@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic; // Added for List compatibility
 using UnityEngine;
 using TMPro;
 
@@ -63,11 +64,8 @@ public class StairsTrigger : MonoBehaviour
             generatorLever = FindFirstObjectByType<lever_script>(FindObjectsInactive.Include);
         }
 
-        // 3. Auto-find allLightsParent from generator if empty
-        if (allLightsParent == null && generatorLever != null && generatorLever.alllights != null)
-        {
-            allLightsParent = generatorLever.alllights;
-        }
+        // 3. FIX: We cannot assign a List<GameObject> directly to a single GameObject variable.
+        // We leave allLightsParent untouched here. If you want a specific parent disabled, link it in the Unity Inspector.
     }
 
     private void OnTriggerEnter(Collider other)
@@ -99,7 +97,7 @@ public class StairsTrigger : MonoBehaviour
             triggerAudio.PlayOneShot(powerCutSound);
         }
 
-        // 3. SHUT DOWN GENERATOR
+        // 3. SHUT DOWN GENERATOR (This automatically turns off lever_script's alllights)
         if (generatorLever != null)
         {
             generatorLever.StopGenerator();

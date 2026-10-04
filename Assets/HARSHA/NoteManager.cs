@@ -84,9 +84,38 @@ public class NoteManager : MonoBehaviour
             defaultFontSize = bodyText.fontSize;
         }
 
+        // 1. Ensure an EventSystem exists in the scene so UI buttons can receive clicks
+        EnsureEventSystem();
+
+        // 2. Auto-find closeButton if unassigned
+        if (closeButton == null)
+        {
+            Button[] allBtns = GetComponentsInChildren<Button>(true);
+            foreach (var btn in allBtns)
+            {
+                if (btn.gameObject.name.IndexOf("close", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    btn.gameObject.name.IndexOf("x", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    closeButton = btn;
+                    break;
+                }
+            }
+        }
+
         if (closeButton != null)
         {
-            closeButton.onClick.RemoveAllListeners();
+            // Ensure button image receives raycasts
+            Image btnImg = closeButton.GetComponent<Image>();
+            if (btnImg != null) btnImg.raycastTarget = true;
+
+            // Disable raycast target on child text ('X') so it doesn't intercept the click
+            TextMeshProUGUI[] childTexts = closeButton.GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach (var txt in childTexts)
+            {
+                txt.raycastTarget = false;
+            }
+
+            closeButton.onClick.RemoveListener(CloseNote);
             closeButton.onClick.AddListener(CloseNote);
         }
 
@@ -106,8 +135,17 @@ public class NoteManager : MonoBehaviour
 
         if (backgroundDimmerButton != null)
         {
-            backgroundDimmerButton.onClick.RemoveAllListeners();
+            backgroundDimmerButton.onClick.RemoveListener(CloseNote);
             backgroundDimmerButton.onClick.AddListener(CloseNote);
+        }
+    }
+
+    private void EnsureEventSystem()
+    {
+        if (FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            GameObject es = new GameObject("EventSystem", typeof(UnityEngine.EventSystems.EventSystem), typeof(UnityEngine.EventSystems.StandaloneInputModule));
+            Debug.Log("[NoteManager] Auto-created missing EventSystem with StandaloneInputModule in scene.");
         }
     }
 
@@ -241,7 +279,16 @@ public class NoteManager : MonoBehaviour
 
         if (closeButton != null)
         {
-            closeButton.onClick.RemoveAllListeners();
+            Image btnImg = closeButton.GetComponent<Image>();
+            if (btnImg != null) btnImg.raycastTarget = true;
+
+            TextMeshProUGUI[] childTexts = closeButton.GetComponentsInChildren<TextMeshProUGUI>(true);
+            foreach (var txt in childTexts)
+            {
+                txt.raycastTarget = false;
+            }
+
+            closeButton.onClick.RemoveListener(CloseNote);
             closeButton.onClick.AddListener(CloseNote);
             closeButton.gameObject.SetActive(true);
             closeButton.interactable = true;
@@ -249,7 +296,7 @@ public class NoteManager : MonoBehaviour
 
         if (backgroundDimmerButton != null)
         {
-            backgroundDimmerButton.onClick.RemoveAllListeners();
+            backgroundDimmerButton.onClick.RemoveListener(CloseNote);
             backgroundDimmerButton.onClick.AddListener(CloseNote);
             backgroundDimmerButton.interactable = true;
         }

@@ -8,6 +8,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1333596770518281204, guid: 0b2ccf2f09d56064fa1a74743232c05e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1333596770518281204, guid: 0b2ccf2f09d56064fa1a74743232c05e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.67
+      objectReference: {fileID: 0}
+    - target: {fileID: 1333596770518281204, guid: 0b2ccf2f09d56064fa1a74743232c05e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3935751416929724038, guid: 0b2ccf2f09d56064fa1a74743232c05e, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6242437812945277357, guid: 0b2ccf2f09d56064fa1a74743232c05e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -59.0738
@@ -51,6 +67,14 @@ PrefabInstance:
     - target: {fileID: 6767301316996860695, guid: 0b2ccf2f09d56064fa1a74743232c05e, type: 3}
       propertyPath: m_Name
       value: model Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 7213625338153245006, guid: 0b2ccf2f09d56064fa1a74743232c05e, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8450023363625076819, guid: 0b2ccf2f09d56064fa1a74743232c05e, type: 3}
+      propertyPath: m_Lightmapping
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

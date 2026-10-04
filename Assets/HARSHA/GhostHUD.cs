@@ -20,13 +20,20 @@ public class GhostHUD : MonoBehaviour
 
     void Start()
     {
-        panelCanvasGroup.alpha = 0f;
+        if (panelCanvasGroup == null) panelCanvasGroup = GetComponent<CanvasGroup>();
+        if (panelCanvasGroup != null) panelCanvasGroup.alpha = 0f;
         
         // Ensure starting colors are white before setting alpha
-        headingText.color = Color.white;
-        bodyText.color = Color.white;
-        SetAlpha(headingText, 0f);
-        SetAlpha(bodyText, 0f);
+        if (headingText != null)
+        {
+            headingText.color = Color.white;
+            SetAlpha(headingText, 0f);
+        }
+        if (bodyText != null)
+        {
+            bodyText.color = Color.white;
+            SetAlpha(bodyText, 0f);
+        }
         
         if (okButton != null) okButton.SetActive(false);
     }
@@ -42,10 +49,18 @@ public class GhostHUD : MonoBehaviour
 
     public void TriggerOpen()
     {
-        if (!isOpen)
+        if (isOpen) return;
+
+        // Ensure this GameObject and all parents are active so coroutines can run
+        Transform curr = transform;
+        while (curr != null)
         {
-            StartCoroutine(OpenSequenceCoroutine());
+            if (!curr.gameObject.activeSelf) curr.gameObject.SetActive(true);
+            curr = curr.parent;
         }
+
+        isOpen = true;
+        StartCoroutine(OpenSequenceCoroutine());
     }
 
     private IEnumerator OpenSequenceCoroutine()
@@ -53,11 +68,12 @@ public class GhostHUD : MonoBehaviour
         isOpen = true;
         isReadyToClose = false;
         
-        panelCanvasGroup.alpha = 1f;
+        if (panelCanvasGroup == null) panelCanvasGroup = GetComponent<CanvasGroup>();
+        if (panelCanvasGroup != null) panelCanvasGroup.alpha = 1f;
         if (okButton != null) okButton.SetActive(false);
 
-        headingText.rectTransform.localScale = Vector3.one;
-        bodyText.rectTransform.localScale = Vector3.one;
+        if (headingText != null) headingText.rectTransform.localScale = Vector3.one;
+        if (bodyText != null) bodyText.rectTransform.localScale = Vector3.one;
 
         float time = 0;
         while(time < slowFadeDuration)
@@ -100,18 +116,25 @@ public class GhostHUD : MonoBehaviour
         
         while(time < fadeOutTime)
         {
-            panelCanvasGroup.alpha = Mathf.Lerp(1f, 0f, time / fadeOutTime);
+            if (panelCanvasGroup != null)
+                panelCanvasGroup.alpha = Mathf.Lerp(1f, 0f, time / fadeOutTime);
             time += Time.deltaTime;
             yield return null;
         }
 
-        panelCanvasGroup.alpha = 0f;
+        if (panelCanvasGroup != null) panelCanvasGroup.alpha = 0f;
         
         // Reset back to white for the next time you open a note
-        headingText.color = Color.white;
-        bodyText.color = Color.white;
-        SetAlpha(headingText, 0f);
-        SetAlpha(bodyText, 0f);
+        if (headingText != null)
+        {
+            headingText.color = Color.white;
+            SetAlpha(headingText, 0f);
+        }
+        if (bodyText != null)
+        {
+            bodyText.color = Color.white;
+            SetAlpha(bodyText, 0f);
+        }
         
         if (okButton != null) okButton.SetActive(false);
         
