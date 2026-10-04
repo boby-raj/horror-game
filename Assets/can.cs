@@ -48,6 +48,12 @@ public class lcan : MonoBehaviour, IInteractable
         if (source == null) source = GetComponentInParent<AudioSource>();
     }
 
+    private void OnDisable()
+    {
+        inarea = false;
+        if (escreen != null && escreen.activeSelf) escreen.SetActive(false);
+    }
+
     private void Update()
     {
         if (isUsed) return;
@@ -117,14 +123,34 @@ public class lcan : MonoBehaviour, IInteractable
     }
 
     // --- Trigger Area Detection (Walking up to the can) ---
+    private bool IsPlayer(Collider other)
+    {
+        if (other == null) return false;
+        return other.CompareTag("Player") ||
+               other.GetComponent<CharacterController>() != null ||
+               other.name.IndexOf("Capsule", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+               other.name.IndexOf("Player", System.StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (isUsed) return;
 
-        if (other.CompareTag("Player") || other.GetComponent<CharacterController>() != null || other.name.Contains("Capsule"))
+        if (IsPlayer(other))
         {
             inarea = true;
-            if (escreen != null) escreen.SetActive(true);
+            if (escreen != null && !escreen.activeSelf) escreen.SetActive(true);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (isUsed) return;
+
+        if (!inarea && IsPlayer(other))
+        {
+            inarea = true;
+            if (escreen != null && !escreen.activeSelf) escreen.SetActive(true);
         }
     }
 
@@ -132,10 +158,10 @@ public class lcan : MonoBehaviour, IInteractable
     {
         if (isUsed) return;
 
-        if (other.CompareTag("Player") || other.GetComponent<CharacterController>() != null || other.name.Contains("Capsule"))
+        if (IsPlayer(other))
         {
             inarea = false;
-            if (escreen != null) escreen.SetActive(false);
+            if (escreen != null && escreen.activeSelf) escreen.SetActive(false);
         }
     }
 
