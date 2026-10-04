@@ -15,9 +15,15 @@ EditorBuildSettings:
     path: Assets/Scenes/StoryIntro.unity
     guid: 0ff70569a3782b2429c4fdd364d616b3
   - enabled: 1
+    path: Assets/finalmapdone.unity
+    guid: e14b822fbf09fc143bc720e9c61c8430
+  - enabled: 1
+    path: Assets/end.unity
+    guid: 3dfb2224f2e756b48ae3aab28219c524
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/enemy trail.unity
     guid: c2e0adc5dd563d149a0eba953afc2139
   m_configObjects:

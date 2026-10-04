@@ -30,3 +30,10 @@ This is a Unity 3D First-Person Horror Game. It features a modular player contro
 - Updated key.cs to instantly disable all child renderers and colliders upon pickup, so the key visually disappears immediately rather than waiting for the 2.5s text delay.
 - Updated key.cs so that the key is only picked up when pressing the Interaction button ('E') instead of automatically on hover.
 - Increased interactionDistance in PlayerInteraction.cs from 3.0 to 6.0 so the player can interact with objects from further away.
+
+### [2026-10-03 & 2026-10-04] - UI, Lighting & Performance Updates
+- Added `hoverText` and `inventoryIcon` fields to `key.cs` and `box_open_withkey.cs` to show "Press E" prompts and top-right key inventory icons.
+- Removed unused Cinemachine and PlayableDirector intro logic from `OpeningManager.cs`.
+- Removed legacy `OnGUI()` timer rendering from `lever_script.cs` for better frame rate performance.
+- Added Editor utilities (`LightingFixer.cs` and `UIPromptFixer.cs`) under `Assets/Editor/` to configure Mixed baked lighting and automatically disable stray active UI prompt texts.
+

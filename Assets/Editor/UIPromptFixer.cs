@@ -1,14 +1,16 @@
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
-/// Finds and disables all common UI prompt text objects in the scene.
+/// Finds and disables all common UI prompt text objects in the scene,
+/// including searching inside text contents (like "PRESS [E] TO OPEN").
 /// Go to: Tools → Disable All UI Prompt Texts
 /// </summary>
 public class UIPromptFixer : EditorWindow
 {
-    // Add any prompt text names your game uses here
     private static readonly string[] promptNames = new string[]
     {
         "open_text",
@@ -38,28 +40,65 @@ public class UIPromptFixer : EditorWindow
     {
         int count = 0;
 
-        // Find every GameObject in scene
         GameObject[] allObjects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         foreach (GameObject obj in allObjects)
         {
+            if (!obj.activeSelf) continue;
+
+            bool shouldDisable = false;
+
+            // 1. Check by GameObject name
             foreach (string promptName in promptNames)
             {
-                if (obj.name.ToLower() == promptName.ToLower() && obj.activeSelf)
+                if (obj.name.Equals(promptName, System.StringComparison.OrdinalIgnoreCase))
                 {
-                    Undo.RecordObject(obj, "Disable UI Prompt");
-                    obj.SetActive(false);
-                    EditorUtility.SetDirty(obj);
-                    Debug.Log($"[UIPromptFixer] Disabled: {obj.name}");
-                    count++;
+                    shouldDisable = true;
                     break;
                 }
+            }
+
+            // 2. Check TextMeshPro text content (e.g. "PRESS [E] TO OPEN")
+            if (!shouldDisable)
+            {
+                TMP_Text tmp = obj.GetComponent<TMP_Text>();
+                if (tmp != null && !string.IsNullOrEmpty(tmp.text))
+                {
+                    string t = tmp.text.ToUpperInvariant();
+                    if (t.Contains("PRESS") && (t.Contains("[E]") || t.Contains(" E ") || t.Contains("OPEN") || t.Contains("KEY") || t.Contains("FUEL")))
+                    {
+                        shouldDisable = true;
+                    }
+                }
+            }
+
+            // 3. Check Legacy UI Text content
+            if (!shouldDisable)
+            {
+                Text legacyText = obj.GetComponent<Text>();
+                if (legacyText != null && !string.IsNullOrEmpty(legacyText.text))
+                {
+                    string t = legacyText.text.ToUpperInvariant();
+                    if (t.Contains("PRESS") && (t.Contains("[E]") || t.Contains(" E ") || t.Contains("OPEN") || t.Contains("KEY") || t.Contains("FUEL")))
+                    {
+                        shouldDisable = true;
+                    }
+                }
+            }
+
+            if (shouldDisable)
+            {
+                Undo.RecordObject(obj, "Disable UI Prompt");
+                obj.SetActive(false);
+                EditorUtility.SetDirty(obj);
+                Debug.Log($"[UIPromptFixer] Disabled: {obj.name}");
+                count++;
             }
         }
 
         EditorUtility.DisplayDialog(
             "Done!",
-            $"✅ Disabled {count} UI prompt object(s).\n\nThey will now be hidden by default and only appear when the script activates them.",
+            $"✅ Disabled {count} UI prompt object(s) (including any 'PRESS [E] TO OPEN' texts).\n\nRemember to Save your Scene (Ctrl+S)!",
             "OK"
         );
     }
