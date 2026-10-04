@@ -4,74 +4,69 @@ using TMPro;
 
 /// <summary>
 /// Attach to the StairsTrigger GameObject (must have a BoxCollider set to Is Trigger).
-/// When the player steps into the zone for the first time:
-///   1. Activates & shows the staircase panel (works with GameObject, CanvasGroup, or GhostHUD).
-///   2. Turns off all scene lights (or a custom list).
+/// Sequence on player contact:
+///   1. Stops the generator (lever_script.StopGenerator()).
+///   2. Turns off all lights in the scene (including pointlightwork).
+///   3. Triggers the GhostHUD / staircase panel (same as the first door trigger).
 /// </summary>
 public class StairsTrigger : MonoBehaviour
 {
-    [Header("Staircase Panel Reference")]
-    [Tooltip("Drag your staircase panel GameObject here (e.g. GhostPanel, StaircasePanel, etc.)")]
-    public GameObject panelObject;
-
-    [Tooltip("Optional: If the panel uses a CanvasGroup for fading, drag it here (auto-found if empty).")]
-    public CanvasGroup panelCanvasGroup;
-
-    [Tooltip("Optional: If your panel uses GhostHUD, drag it here (auto-found if empty).")]
+    [Header("GhostHUD / Staircase Panel Reference")]
+    [Tooltip("Drag the GhostHUD component from your panel (or drag GhostPanel GameObject).")]
     public GhostHUD ghostHUD;
 
-    [Header("Display Settings")]
-    [Tooltip("If true, does a smooth fade-in. If false, turns it on instantly.")]
-    public bool useFadeIn = true;
-    public float fadeInDuration = 1.0f;
+    [Tooltip("Alternative panel GameObject if not using GhostHUD.")]
+    public GameObject panelObject;
 
-    [Tooltip("Press this key to dismiss/close the panel (default: E). Set to None to disable.")]
-    public KeyCode dismissKey = KeyCode.E;
+    [Header("Generator Reference (Optional - Auto-Found if Empty)")]
+    [Tooltip("The lever_script running the generator. If empty, automatically found.")]
+    public lever_script generatorLever;
 
-    [Header("Lights")]
-    [Tooltip("Leave empty to automatically turn off every Light in the scene.")]
-    public Light[] lightsToTurnOff;
-    [Tooltip("Delay in seconds before lights shut off.")]
-    public float lightCutDelay = 0.2f;
+    [Header("Lights Control")]
+    [Tooltip("Specific lights or parent GameObject to disable (e.g. pointlightwork).")]
+    public GameObject allLightsParent;
+
+    [Tooltip("Leave empty to automatically turn off every Light component in the scene.")]
+    public Light[] specificLightsToTurnOff;
+
+    [Tooltip("Delay in seconds before lights and generator cut out after entering trigger.")]
+    public float shutoffDelay = 0.2f;
+
+    [Header("Custom Message Override (Optional)")]
+    [Tooltip("If set, changes the text on the GhostHUD popup for the stairs event.")]
+    public string overrideHeading = "";
+    [TextArea(2, 5)]
+    public string overrideBody = "";
 
     [Header("Audio (Optional)")]
     public AudioSource triggerAudio;
-    public AudioClip lightOffSound;
+    public AudioClip powerCutSound;
 
     private bool hasTriggered = false;
-    private bool isPanelShowing = false;
 
     private void Awake()
     {
-        // Auto-resolve components from panelObject if provided
-        if (panelObject != null)
+        // 1. Auto-find GhostHUD if not manually linked
+        if (ghostHUD == null && panelObject != null)
         {
-            if (panelCanvasGroup == null)
-                panelCanvasGroup = panelObject.GetComponent<CanvasGroup>();
-            if (ghostHUD == null)
-                ghostHUD = panelObject.GetComponent<GhostHUD>();
-        }
-        else if (panelCanvasGroup != null)
-        {
-            panelObject = panelCanvasGroup.gameObject;
-        }
-        else if (ghostHUD != null)
-        {
-            panelObject = ghostHUD.gameObject;
+            ghostHUD = panelObject.GetComponentInChildren<GhostHUD>(true);
         }
 
-        // Initially ensure the panel is hidden if configured to be
-        if (ghostHUD == null && panelObject != null && !panelObject.activeSelf)
+        if (ghostHUD == null)
         {
-            // Keep it inactive until triggered
+            ghostHUD = FindFirstObjectByType<GhostHUD>(FindObjectsInactive.Include);
         }
-    }
 
-    private void Update()
-    {
-        if (isPanelShowing && dismissKey != KeyCode.None && Input.GetKeyDown(dismissKey))
+        // 2. Auto-find Generator if not manually linked
+        if (generatorLever == null)
         {
-            ClosePanel();
+            generatorLever = FindFirstObjectByType<lever_script>(FindObjectsInactive.Include);
+        }
+
+        // 3. Auto-find allLightsParent from generator if empty
+        if (allLightsParent == null && generatorLever != null && generatorLever.alllights != null)
+        {
+            allLightsParent = generatorLever.alllights;
         }
     }
 
@@ -81,158 +76,108 @@ public class StairsTrigger : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         hasTriggered = true;
-        Debug.Log("[StairsTrigger] Player entered stairs trigger zone!");
+        Debug.Log("[StairsTrigger] Player reached stairs trigger zone!");
 
-        // 1. Show the panel
-        ShowPanel();
+        StartCoroutine(ExecuteTriggerSequence());
 
-        // 2. Shut off the lights
-        StartCoroutine(TurnOffLightsCoroutine(lightCutDelay));
-
-        // Disable collider so it doesn't trigger again
+        // Disable collider so trigger never fires twice
         Collider col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
     }
 
-    public void ShowPanel()
+    private IEnumerator ExecuteTriggerSequence()
     {
-        isPanelShowing = true;
-
-        // If it's a GhostHUD popup, use its built-in open sequence
-        if (ghostHUD != null)
+        // 1. Optional delay before the power cuts
+        if (shutoffDelay > 0f)
         {
-            Debug.Log("[StairsTrigger] Triggering GhostHUD on panel.");
-            if (panelObject != null && !panelObject.activeSelf)
-                panelObject.SetActive(true);
-            ghostHUD.TriggerOpen();
-            return;
+            yield return new WaitForSeconds(shutoffDelay);
         }
 
-        // Standard GameObject / CanvasGroup panel
-        if (panelObject != null)
+        // 2. Sound effect
+        if (triggerAudio != null && powerCutSound != null)
         {
-            panelObject.SetActive(true);
-            Debug.Log($"[StairsTrigger] SetActive(true) on panel: {panelObject.name}");
-
-            // Ensure parent canvases/hierarchy are active
-            Transform curr = panelObject.transform.parent;
-            while (curr != null)
-            {
-                if (!curr.gameObject.activeSelf)
-                {
-                    curr.gameObject.SetActive(true);
-                    Debug.Log($"[StairsTrigger] Activated parent: {curr.gameObject.name}");
-                }
-                curr = curr.parent;
-            }
-
-            if (panelCanvasGroup != null)
-            {
-                panelCanvasGroup.interactable = true;
-                panelCanvasGroup.blocksRaycasts = true;
-
-                if (useFadeIn)
-                {
-                    StartCoroutine(FadeInCanvasGroup(panelCanvasGroup, fadeInDuration));
-                }
-                else
-                {
-                    panelCanvasGroup.alpha = 1f;
-                }
-            }
-            else
-            {
-                // Ensure text and graphics are not hidden with 0 alpha
-                TextMeshProUGUI[] texts = panelObject.GetComponentsInChildren<TextMeshProUGUI>(true);
-                foreach (var t in texts)
-                {
-                    Color c = t.color;
-                    if (c.a < 0.05f) { c.a = 1f; t.color = c; }
-                }
-            }
-        }
-        else
-        {
-            Debug.LogWarning("[StairsTrigger] No Panel Object or CanvasGroup assigned in inspector!");
-        }
-    }
-
-    public void ClosePanel()
-    {
-        if (!isPanelShowing) return;
-        isPanelShowing = false;
-
-        if (panelCanvasGroup != null && useFadeIn)
-        {
-            StartCoroutine(FadeOutAndDisable(panelCanvasGroup, 0.5f));
-        }
-        else if (panelObject != null)
-        {
-            panelObject.SetActive(false);
-        }
-    }
-
-    private IEnumerator FadeInCanvasGroup(CanvasGroup cg, float duration)
-    {
-        float elapsed = 0f;
-        cg.alpha = 0f;
-        while (elapsed < duration)
-        {
-            cg.alpha = Mathf.Lerp(0f, 1f, elapsed / duration);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        cg.alpha = 1f;
-    }
-
-    private IEnumerator FadeOutAndDisable(CanvasGroup cg, float duration)
-    {
-        float elapsed = 0f;
-        float startAlpha = cg.alpha;
-        while (elapsed < duration)
-        {
-            cg.alpha = Mathf.Lerp(startAlpha, 0f, elapsed / duration);
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        cg.alpha = 0f;
-        cg.interactable = false;
-        cg.blocksRaycasts = false;
-        if (panelObject != null) panelObject.SetActive(false);
-    }
-
-    private IEnumerator TurnOffLightsCoroutine(float delay)
-    {
-        if (delay > 0f)
-            yield return new WaitForSeconds(delay);
-
-        if (triggerAudio != null && lightOffSound != null)
-        {
-            triggerAudio.PlayOneShot(lightOffSound);
+            triggerAudio.PlayOneShot(powerCutSound);
         }
 
-        Light[] targets = (lightsToTurnOff != null && lightsToTurnOff.Length > 0)
-            ? lightsToTurnOff
+        // 3. SHUT DOWN GENERATOR
+        if (generatorLever != null)
+        {
+            generatorLever.StopGenerator();
+            Debug.Log("[StairsTrigger] Generator stopped via lever_script.StopGenerator().");
+        }
+
+        // 4. SHUT OFF ALL LIGHTS
+        if (allLightsParent != null)
+        {
+            allLightsParent.SetActive(false);
+            Debug.Log($"[StairsTrigger] Disabled lights parent: {allLightsParent.name}");
+        }
+
+        // Turn off all scene lights or specific lights
+        Light[] lights = (specificLightsToTurnOff != null && specificLightsToTurnOff.Length > 0)
+            ? specificLightsToTurnOff
             : FindObjectsByType<Light>(FindObjectsSortMode.None);
 
-        int count = 0;
-        foreach (Light l in targets)
+        int lightsCut = 0;
+        foreach (Light l in lights)
         {
             if (l != null && l.enabled)
             {
-                // Do not disable flashlight attached to player camera unless explicitly assigned
-                if (lightsToTurnOff == null || lightsToTurnOff.Length == 0)
+                // Preserve player flashlight if present
+                if (l.CompareTag("MainCamera") || l.transform.IsChildOf(Camera.main != null ? Camera.main.transform : l.transform.root))
                 {
-                    if (l.CompareTag("MainCamera") || l.transform.IsChildOf(Camera.main != null ? Camera.main.transform : l.transform.root))
-                    {
-                        continue;
-                    }
+                    continue;
                 }
+
                 l.enabled = false;
-                count++;
+                lightsCut++;
             }
         }
+        Debug.Log($"[StairsTrigger] Extinguished {lightsCut} scene light(s).");
 
-        Debug.Log($"[StairsTrigger] Cut off {count} light(s).");
+        // 5. TRIGGER GHOSTHUD / STAIRCASE PANEL
+        if (ghostHUD != null)
+        {
+            // Ensure its GameObject and parent canvases are active
+            GameObject hudGO = ghostHUD.gameObject;
+            if (!hudGO.activeSelf) hudGO.SetActive(true);
+
+            Transform curr = hudGO.transform.parent;
+            while (curr != null)
+            {
+                if (!curr.gameObject.activeSelf) curr.gameObject.SetActive(true);
+                curr = curr.parent;
+            }
+
+            // Optional custom text
+            if (!string.IsNullOrEmpty(overrideHeading) && ghostHUD.headingText != null)
+            {
+                ghostHUD.headingText.text = overrideHeading;
+            }
+            if (!string.IsNullOrEmpty(overrideBody) && ghostHUD.bodyText != null)
+            {
+                ghostHUD.bodyText.text = overrideBody;
+            }
+
+            // Trigger identical to first door
+            ghostHUD.TriggerOpen();
+            Debug.Log("[StairsTrigger] GhostHUD.TriggerOpen() successfully called!");
+        }
+        else if (panelObject != null)
+        {
+            panelObject.SetActive(true);
+            CanvasGroup cg = panelObject.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.alpha = 1f;
+                cg.interactable = true;
+                cg.blocksRaycasts = true;
+            }
+            Debug.Log($"[StairsTrigger] Activated panelObject: {panelObject.name}");
+        }
+        else
+        {
+            Debug.LogWarning("[StairsTrigger] Neither GhostHUD nor panelObject was found to display!");
+        }
     }
 }

@@ -65,8 +65,30 @@ public class lever_script : MonoBehaviour, IInteractable
         if (lev_ui != null) lev_ui.SetActive(false);
         if (timerPanel != null) timerPanel.SetActive(false);
 
-        // Ensure lights start OFF if generator is not running
-        if (!isRunning && alllights != null)
+        // If generator is configured to start ON
+        if (isRunning)
+        {
+            if (currentRunTime <= 0f)
+            {
+                currentRunTime = generatorRunDuration > 0f ? generatorRunDuration : 9999f;
+            }
+            if (alllights != null)
+            {
+                alllights.SetActive(true);
+            }
+            if (grator != null && start_sound != null)
+            {
+                grator.clip = start_sound;
+                grator.loop = true;
+                grator.Play();
+            }
+            if (lv_animator != null)
+            {
+                lv_animator.enabled = true;
+                lv_animator.Play(0);
+            }
+        }
+        else if (alllights != null)
         {
             alllights.SetActive(false);
         }

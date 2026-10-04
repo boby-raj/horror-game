@@ -58775,7 +58775,7 @@ MonoBehaviour:
   close_text: {fileID: 1527040523}
   generatorRunDuration: 60
   currentRunTime: 0
-  isRunning: 0
+  isRunning: 1
   allowRefuelWhileRunning: 1
   timerPanel: {fileID: 0}
   timerText: {fileID: 0}
