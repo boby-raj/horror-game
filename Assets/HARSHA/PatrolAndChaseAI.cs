@@ -45,7 +45,7 @@ public class PatrolAndChaseAI : MonoBehaviour
     [Tooltip("Field of view in degrees. Only used when NOT chasing.")]
     public float fieldOfViewAngle = 110.0f;
     [Tooltip("Inside this distance the enemy notices you from any angle (still needs a clear line)")]
-    public float closeSenseRange = 3.0f;
+    public float closeSenseRange = 5.0f;
     [Tooltip("Layers that block sight: walls, doors, furniture. Include the player layer or leave as Everything.")]
     public LayerMask obstacleMask = ~0;
     [Tooltip("Eye height above pivot (scaled by the enemy's Y scale)")]
@@ -63,8 +63,8 @@ public class PatrolAndChaseAI : MonoBehaviour
 
     [Header("Patrol Waypoints")]
     public Transform[] waypoints;
-    public float patrolSpeed = 2.0f;
-    public float chaseSpeed = 4.8f;
+    public float patrolSpeed = 2.6f;
+    public float chaseSpeed = 5.6f;
     public float waypointWaitTime = 1.5f;
 
     [Header("Chase & Escape Tuning")]

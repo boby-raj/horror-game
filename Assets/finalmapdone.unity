@@ -15,24 +15,24 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
   m_Fog: 1
-  m_FogColor: {r: 0.015, g: 0.018, b: 0.025, a: 1}
+  m_FogColor: {r: 0.03137255, g: 0.03529412, b: 0.050980393, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.015
+  m_FogDensity: 0.04
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.015, g: 0.015, b: 0.02, a: 1}
+  m_AmbientSkyColor: {r: 0.019607844, g: 0.02745098, b: 0.039215688, a: 1}
   m_AmbientEquatorColor: {r: 0.01, g: 0.01, b: 0.01, a: 1}
   m_AmbientGroundColor: {r: 0.005, g: 0.005, b: 0.005, a: 1}
   m_AmbientIntensity: 0
   m_AmbientMode: 3
-  m_SubtractiveShadowColor: {r: 0, g: 0, b: 0, a: 1}
+  m_SubtractiveShadowColor: {r: 0.019607844, g: 0.02745098, b: 0.039215688, a: 1}
   m_SkyboxMaterial: {fileID: 0}
   m_HaloStrength: 0.468
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
-  m_DefaultReflectionMode: 0
+  m_DefaultReflectionMode: 1
   m_DefaultReflectionResolution: 1024
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 0
@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 0873cd08f27d305488b0dbaa29b2f50a, type: 2}
+  m_LightingDataAsset: {fileID: 112000000, guid: 96d2d0d47b741754aab0a7e3ef22c8ff, type: 2}
   m_LightingSettings: {fileID: 1974266231}
 --- !u!196 &4
 NavMeshSettings:
@@ -8061,7 +8061,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 204434404}
-  m_Mesh: {fileID: 765914154}
+  m_Mesh: {fileID: 1468693110}
 --- !u!23 &204434407
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8346,7 +8346,7 @@ MonoBehaviour:
     m_AreaError: 15
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
-  m_Mesh: {fileID: 765914154}
+  m_Mesh: {fileID: 1468693110}
   m_VersionIndex: 6057
   m_IsSelectable: 1
   m_SelectedFaces: 
@@ -12354,7 +12354,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -38435,7 +38435,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &766535607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38452,7 +38452,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 1dc3c52878088904684b20adc09c23ec, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 5abf75c4f24e84d4e9e75fa54c8ede00, type: 2}
 --- !u!4 &766535608
 Transform:
   m_ObjectHideFlags: 0
@@ -53512,7 +53512,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 3
@@ -57209,8 +57209,8 @@ Camera:
   m_GameObject: {fileID: 1047972681}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -57268,6 +57268,55 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   playerCamera: {fileID: 0}
+--- !u!1 &1054328451
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1054328453}
+  - component: {fileID: 1054328452}
+  m_Layer: 0
+  m_Name: Global Volume (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1054328452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054328451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 5abf75c4f24e84d4e9e75fa54c8ede00, type: 2}
+--- !u!4 &1054328453
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1054328451}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 55.3831, y: 28.739182, z: 221.19368}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1059017460
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -58695,7 +58744,9 @@ MonoBehaviour:
   currentRunTime: 0
   isRunning: 0
   allowRefuelWhileRunning: 1
+  timerPanel: {fileID: 0}
   timerText: {fileID: 0}
+  timerTextColor: {r: 1, g: 1, b: 1, a: 1}
   showOnScreenTimer: 1
 --- !u!1001 &1074152112
 PrefabInstance:
@@ -72519,7 +72570,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.ProbeVolumePerSceneData
   serializedBakingSet: {fileID: 0}
-  sceneGUID: 713a09697148c0246b9cc1c0236e6368
+  sceneGUID: e14b822fbf09fc143bc720e9c61c8430
   obsoleteAsset: {fileID: 0}
   obsoleteCellSharedDataAsset: {fileID: 0}
   obsoleteCellSupportDataAsset: {fileID: 0}
@@ -75098,6 +75149,184 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ae1331723d604ad40938fe2ade4a8e67, type: 3}
+--- !u!43 &1468693110
+Mesh:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: pb_Mesh83320
+  serializedVersion: 12
+  m_SubMeshes:
+  - serializedVersion: 2
+    firstByte: 0
+    indexCount: 36
+    topology: 0
+    baseVertex: 0
+    firstVertex: 0
+    vertexCount: 24
+    localAABB:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 4.3520803, y: 1.1145407, z: 2.4127884}
+  m_Shapes:
+    vertices: []
+    shapes: []
+    channels: []
+    fullWeights: []
+  m_BindPose: []
+  m_BoneNameHashes: 
+  m_RootBoneNameHash: 0
+  m_BonesAABB: []
+  m_VariableBoneCountWeights:
+    m_Data: 
+  m_MeshCompression: 0
+  m_IsReadable: 1
+  m_KeepVertices: 1
+  m_KeepIndices: 1
+  m_IndexFormat: 0
+  m_IndexBuffer: 000001000200010003000200040005000600050007000600080009000a0009000b000a000c000d000e000d000f000e00100011001200110013001200140015001600150017001600
+  m_VertexData:
+    serializedVersion: 3
+    m_VertexCount: 24
+    m_Channels:
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 12
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 24
+      format: 0
+      dimension: 4
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 40
+      format: 0
+      dimension: 2
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    m_DataSize: 1152
+    _typelessdata: 3e448bc045a98ebf206b1a4000000000000000000000803f000080bf0000000000000000000080bf3e440b418a529dbf3e448b4045a98ebf206b1a4000000000000000000000803f000080bf0000000000000000000080bf000000008a529dbf3e448bc045a98e3f206b1a4000000000000000000000803f000080bf0000000000000000000080bf3e440b410000803f3e448b4045a98e3f206b1a4000000000000000000000803f000080bf0000000000000000000080bf000000000000803f3e448b4045a98ebf206b1a400000803f000000000000000000000000000000000000803f000080bf206b9a408a529dbf3e448b4045a98ebf206b1ac00000803f000000000000000000000000000000000000803f000080bf000000008a529dbf3e448b4045a98e3f206b1a400000803f000000000000000000000000000000000000803f000080bf206b9a400000803f3e448b4045a98e3f206b1ac00000803f000000000000000000000000000000000000803f000080bf000000000000803f3e448b4045a98ebf206b1ac00000000000000000000080bf0000803f0000000000000000000080bf3e440b418a529dbf3e448bc045a98ebf206b1ac00000000000000000000080bf0000803f0000000000000000000080bf000000008a529dbf3e448b4045a98e3f206b1ac00000000000000000000080bf0000803f0000000000000000000080bf3e440b410000803f3e448bc045a98e3f206b1ac00000000000000000000080bf0000803f0000000000000000000080bf000000000000803f3e448bc045a98ebf206b1ac0000080bf00000000000000000000000000000000000080bf000080bf206b9a408a529dbf3e448bc045a98ebf206b1a40000080bf00000000000000000000000000000000000080bf000080bf000000008a529dbf3e448bc045a98e3f206b1ac0000080bf00000000000000000000000000000000000080bf000080bf206b9a400000803f3e448bc045a98e3f206b1a40000080bf00000000000000000000000000000000000080bf000080bf000000000000803f3e448bc045a98e3f206b1a40000000000000803f000000000000803f0000000000000000000080bf000000000000803f3e448b4045a98e3f206b1a40000000000000803f000000000000803f0000000000000000000080bf3e440b410000803f3e448bc045a98e3f206b1ac0000000000000803f000000000000803f0000000000000000000080bf0000000040d674c03e448b4045a98e3f206b1ac0000000000000803f000000000000803f0000000000000000000080bf3e440b4140d674c03e448bc045a98ebf206b1ac000000000000080bf00000000000080bf0000000000000000000080bf3e440b4140d674c03e448b4045a98ebf206b1ac000000000000080bf00000000000080bf0000000000000000000080bf0000000040d674c03e448bc045a98ebf206b1a4000000000000080bf00000000000080bf0000000000000000000080bf3e440b410000803f3e448b4045a98ebf206b1a4000000000000080bf00000000000080bf0000000000000000000080bf000000000000803f
+  m_CompressedMesh:
+    m_Vertices:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UV:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Normals:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Tangents:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Weights:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_NormalSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_TangentSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_FloatColors:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_BoneIndices:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Triangles:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UVInfo: 0
+  m_LocalAABB:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 4.3520803, y: 1.1145407, z: 2.4127884}
+  m_MeshUsageFlags: 0
+  m_CookingOptions: 30
+  m_BakedConvexCollisionMesh: 
+  m_BakedTriangleCollisionMesh: 
+  'm_MeshMetrics[0]': 1
+  'm_MeshMetrics[1]': 1
+  m_MeshOptimizationFlags: 1
+  m_StreamData:
+    serializedVersion: 2
+    offset: 0
+    size: 0
+    path: 
+  m_MeshLodInfo:
+    serializedVersion: 2
+    m_LodSelectionCurve:
+      serializedVersion: 1
+      m_LodSlope: 0
+      m_LodBias: 0
+    m_NumLevels: 1
+    m_SubMeshes:
+    - serializedVersion: 2
+      m_Levels:
+      - serializedVersion: 1
+        m_IndexStart: 0
+        m_IndexCount: 0
 --- !u!1001 &1471827163
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -80142,7 +80371,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -92583,7 +92812,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -94136,7 +94365,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -97971,7 +98200,7 @@ MonoBehaviour:
   catchDistance: 2.5
   maxVerticalCatchDifference: 3.5
   fieldOfViewAngle: 110
-  closeSenseRange: 3
+  closeSenseRange: 5
   obstacleMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -97980,10 +98209,10 @@ MonoBehaviour:
   senseInterval: 0.1
   detectFlashlight: 1
   flashlightBonusDistance: 6
-  playerFlashlight: {fileID: 0}
+  playerFlashlight: {fileID: 988460798}
   waypoints: []
-  patrolSpeed: 2
-  chaseSpeed: 4.8
+  patrolSpeed: 2.6
+  chaseSpeed: 5.6
   waypointWaitTime: 1.5
   loseDistance: 18
   loseSightGrace: 2
@@ -110415,3 +110644,4 @@ SceneRoots:
   - {fileID: 1475800021}
   - {fileID: 90152205}
   - {fileID: 204434410}
+  - {fileID: 1054328453}
