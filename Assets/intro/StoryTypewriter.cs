@@ -33,7 +33,7 @@ public class StoryTypewriter : MonoBehaviour
     public bool allowSkip = true;
 
     [Header("Next Scene")]
-    public string gameplaySceneName = "SampleScene";
+    public string gameplaySceneName = "finalmapdone";
 
     private bool isTyping = false;
     private bool skipRequested = false;
@@ -91,19 +91,10 @@ public class StoryTypewriter : MonoBehaviour
     {
         if (!allowSkip) return;
 
-        // Skip inputs: Space, Return, Escape, Left Click
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(0))
+        // Only allow skipping while text is still typing; never stop or skip the video once it starts
+        if (isTyping && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(0)))
         {
-            if (isTyping)
-            {
-                // Instantly complete typing
-                skipRequested = true;
-            }
-            else if (videoPlayer != null && (videoPlayer.isPlaying || videoPlayer.isPrepared))
-            {
-                // Skip the video
-                TransitionToNextScene();
-            }
+            skipRequested = true;
         }
     }
 
@@ -342,9 +333,21 @@ public class StoryTypewriter : MonoBehaviour
             videoPlayer.Stop();
         }
 
-        if (!string.IsNullOrEmpty(gameplaySceneName))
+        if (!string.IsNullOrEmpty(gameplaySceneName) && Application.CanStreamedLevelBeLoaded(gameplaySceneName))
         {
             SceneManager.LoadScene(gameplaySceneName);
+        }
+        else if (Application.CanStreamedLevelBeLoaded("finalmapdone"))
+        {
+            SceneManager.LoadScene("finalmapdone");
+        }
+        else
+        {
+            int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
+            if (nextIndex < SceneManager.sceneCountInBuildSettings)
+            {
+                SceneManager.LoadScene(nextIndex);
+            }
         }
     }
 }

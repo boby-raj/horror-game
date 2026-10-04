@@ -36,4 +36,10 @@ This is a Unity 3D First-Person Horror Game. It features a modular player contro
 - Removed unused Cinemachine and PlayableDirector intro logic from `OpeningManager.cs`.
 - Removed legacy `OnGUI()` timer rendering from `lever_script.cs` for better frame rate performance.
 - Added Editor utilities (`LightingFixer.cs` and `UIPromptFixer.cs`) under `Assets/Editor/` to configure Mixed baked lighting and automatically disable stray active UI prompt texts.
+- Added `Assets/Editor/BuildFixer.cs` (`[PostProcessBuild(0)]`) to fix the `IOException: Failed to Copy File / Directory` from `com.unity.formats.usd` when building the project a second time into the same output folder.
+- Updated `PlayVideoAfterText.cs` and `StoryTypewriter.cs` so that pressing Space or any other key during the `StoryIntro` video cutscene will no longer stop the video prematurely; the video now always plays to completion and safely transitions to `finalmapdone` (or the next enabled scene in Build Settings).
+- Fixed the Pause Menu (`Esc` -> `Quit`) button in `PauseManager.cs`, `GhostHUD.cs`, `FirstPersonMovement.cs`, `mouselook.cs`, and `MainMenuManager.cs`: trimmed trailing newlines (`"quit\n\n"`) on the Quit button text that pushed the visible label outside its clickable hitbox, ensured full-button raycast target graphics, moved `PauseMenuPanel` to the front of the Canvas when paused, prevented invisible `GhostHUD` from blocking raycasts, and unlocked the cursor properly when returning to `MainMenu`.
+
+
+
 

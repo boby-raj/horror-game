@@ -9,23 +9,36 @@ public class MainMenuManager : MonoBehaviour
 
     [Header("Scene Names")]
     public string storyIntroSceneName = "StoryIntro";       // Sends New Game here
-    public string mainGameplaySceneName = "MainLevel";      // Sends Continue here
+    public string mainGameplaySceneName = "finalmapdone";   // Sends Continue here
+
+    private float menuLoadTime = 0f;
 
     void Start()
     {
+        menuLoadTime = Time.unscaledTime;
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         // Check if the player has a save file
-        if (PlayerPrefs.HasKey("HasSavedGame"))
+        if (continueButton != null)
         {
-            continueButton.interactable = true;
-        }
-        else
-        {
-            continueButton.interactable = false; 
+            if (PlayerPrefs.HasKey("HasSavedGame"))
+            {
+                continueButton.interactable = true;
+            }
+            else
+            {
+                continueButton.interactable = false; 
+            }
         }
     }
 
     public void StartNewGame()
     {
+        // Ignore stray click carried over from the Pause Menu Quit button
+        if (Time.unscaledTime - menuLoadTime < 0.4f) return;
+
         // Flag 0: Fresh start
         PlayerPrefs.SetInt("LoadFromSave", 0); 
         
@@ -35,11 +48,21 @@ public class MainMenuManager : MonoBehaviour
 
     public void ContinueGame()
     {
+        // Ignore stray click carried over from the Pause Menu Quit button
+        if (Time.unscaledTime - menuLoadTime < 0.4f) return;
+
         // Flag 1: Load saved coordinates
         PlayerPrefs.SetInt("LoadFromSave", 1); 
         
         // Load the actual gameplay scene directly, skipping the story
-        SceneManager.LoadScene(mainGameplaySceneName); 
+        if (!string.IsNullOrEmpty(mainGameplaySceneName) && Application.CanStreamedLevelBeLoaded(mainGameplaySceneName))
+        {
+            SceneManager.LoadScene(mainGameplaySceneName);
+        }
+        else if (Application.CanStreamedLevelBeLoaded("finalmapdone"))
+        {
+            SceneManager.LoadScene("finalmapdone");
+        }
     }
 
     public void OpenSettings()

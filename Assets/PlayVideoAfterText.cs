@@ -12,8 +12,8 @@ public class PlayVideoAfterText : MonoBehaviour
     public VideoClip videoClip;
 
     [Header("Transition Settings")]
-    public string nextSceneName = "SampleScene";
-    public bool allowSkip = true;
+    public string nextSceneName = "finalmapdone";
+    public bool allowSkip = false;
 
     private bool isTransitioning = false;
     private bool isVideoStarted = false;
@@ -53,13 +53,7 @@ public class PlayVideoAfterText : MonoBehaviour
 
     void Update()
     {
-        if (!allowSkip || !isVideoStarted || isTransitioning) return;
-
-        // Skip input during video playback
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(0))
-        {
-            SkipVideo();
-        }
+        // Video must play completely to the end even if the player presses Space or any other key.
     }
 
     private void EnsureVideoClipAssigned()
@@ -234,9 +228,21 @@ public class PlayVideoAfterText : MonoBehaviour
             myVideoPlayer.Stop();
         }
 
-        if (!string.IsNullOrEmpty(nextSceneName))
+        if (!string.IsNullOrEmpty(nextSceneName) && Application.CanStreamedLevelBeLoaded(nextSceneName))
         {
             SceneManager.LoadScene(nextSceneName);
+        }
+        else if (Application.CanStreamedLevelBeLoaded("finalmapdone"))
+        {
+            SceneManager.LoadScene("finalmapdone");
+        }
+        else
+        {
+            int nextIndex = SceneManager.GetActiveScene().buildIndex + 1;
+            if (nextIndex < SceneManager.sceneCountInBuildSettings)
+            {
+                SceneManager.LoadScene(nextIndex);
+            }
         }
     }
 }

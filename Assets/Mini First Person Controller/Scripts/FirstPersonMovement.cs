@@ -77,6 +77,8 @@ public class FirstPersonMovement : MonoBehaviour
 
     void Update()
     {
+        if (Time.timeScale == 0f) return;
+
         // 1. Look
         if (cameraTransform != null)
         {

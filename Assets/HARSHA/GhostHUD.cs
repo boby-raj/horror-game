@@ -21,7 +21,12 @@ public class GhostHUD : MonoBehaviour
     void Start()
     {
         if (panelCanvasGroup == null) panelCanvasGroup = GetComponent<CanvasGroup>();
-        if (panelCanvasGroup != null) panelCanvasGroup.alpha = 0f;
+        if (panelCanvasGroup != null)
+        {
+            panelCanvasGroup.alpha = 0f;
+            panelCanvasGroup.blocksRaycasts = false;
+            panelCanvasGroup.interactable = false;
+        }
         
         // Ensure starting colors are white before setting alpha
         if (headingText != null)
