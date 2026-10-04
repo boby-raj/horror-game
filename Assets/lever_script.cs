@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -17,6 +18,7 @@ public class lever_script : MonoBehaviour
     public GameObject lev_ui;
     public GameObject MANDATORY;
     public GameObject alllights;
+    public List<GameObject> lightsList;
 
     [Header("Audio")]
     public AudioSource grator;
@@ -53,10 +55,7 @@ public class lever_script : MonoBehaviour
         if (lev_ui != null) lev_ui.SetActive(false);
 
         // Ensure lights start OFF if generator is not running
-        if (!isRunning && alllights != null)
-        {
-            alllights.SetActive(false);
-        }
+        if (!isRunning) SetAllLights(false);
 
         if (grator == null)
         {
@@ -131,6 +130,22 @@ public class lever_script : MonoBehaviour
     }
 
     /// <summary>
+    /// Turns on/off the single alllights object and every light in lightsList.
+    /// </summary>
+    private void SetAllLights(bool on)
+    {
+        if (alllights != null) alllights.SetActive(on);
+
+        if (lightsList != null)
+        {
+            foreach (var l in lightsList)
+            {
+                if (l != null) l.SetActive(on);
+            }
+        }
+    }
+
+    /// <summary>
     /// Checks whether the player is holding a fuel can.
     /// </summary>
     public bool HasFuel()
@@ -180,10 +195,7 @@ public class lever_script : MonoBehaviour
         }
 
         // Turn ON all powered lights
-        if (alllights != null)
-        {
-            alllights.SetActive(true);
-        }
+        SetAllLights(true);
 
         // Notify GeneratorSystem if attached
         if (GeneratorSystem.Instance != null)
@@ -240,10 +252,7 @@ public class lever_script : MonoBehaviour
         isRunning = false;
 
         // Turn OFF lights
-        if (alllights != null)
-        {
-            alllights.SetActive(false);
-        }
+        SetAllLights(false);
 
         // Stop engine sound
         if (grator != null)
