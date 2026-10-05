@@ -10,7 +10,7 @@ public class FirstPersonMovement : MonoBehaviour
     public float runSpeed = 9f;
     public KeyCode runningKey = KeyCode.LeftShift;
     public bool IsRunning { get; private set; }
-    
+
     [Header("Look")]
     public Transform cameraTransform;
     public float mouseSensitivity = 2f;
@@ -54,7 +54,7 @@ public class FirstPersonMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
         normalHeight = capsuleCollider.height;
-        
+
         if (cameraTransform == null)
         {
             playerCamera = GetComponentInChildren<Camera>();
@@ -79,7 +79,6 @@ public class FirstPersonMovement : MonoBehaviour
     {
         if (Time.timeScale == 0f) return;
 
-        // 1. Look
         if (cameraTransform != null)
         {
             float mouseX = Input.GetAxisRaw("Mouse X") * mouseSensitivity;
@@ -92,7 +91,6 @@ public class FirstPersonMovement : MonoBehaviour
             transform.Rotate(Vector3.up * mouseX);
         }
 
-        // 2. Zoom
         if (playerCamera != null)
         {
             currentZoom += Input.mouseScrollDelta.y * zoomSensitivity * 0.05f;
@@ -100,16 +98,14 @@ public class FirstPersonMovement : MonoBehaviour
             playerCamera.fieldOfView = Mathf.Lerp(defaultFOV, maxZoomFOV, currentZoom);
         }
 
-        // 3. Input gathering for physics
         inputDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
         IsRunning = Input.GetKey(runningKey) && !IsCrouched;
-        
+
         if (Input.GetButtonDown("Jump") && isGrounded && !IsCrouched)
         {
             jumpRequested = true;
         }
 
-        // 4. Crouch Toggle & Check
         if (Input.GetKeyDown(crouchKey))
         {
             TryToggleCrouch();
@@ -124,21 +120,17 @@ public class FirstPersonMovement : MonoBehaviour
     {
         CheckGrounded();
 
-        // Movement
         float currentSpeed = IsCrouched ? crouchSpeed : (IsRunning ? runSpeed : walkSpeed);
-        
-        // Calculate target velocity based on input and current rotation
+
         Vector3 targetVelocity = (transform.right * inputDirection.x + transform.forward * inputDirection.y) * currentSpeed;
 
-        // Apply forces to reach target velocity on X and Z, preserving Y velocity
         Vector3 velocityChange = targetVelocity - new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z);
-        
+
         rb.AddForce(new Vector3(velocityChange.x, 0, velocityChange.z), ForceMode.VelocityChange);
 
-        // Jump
         if (jumpRequested)
         {
-            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z); // Reset vertical velocity before jump
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
             jumpRequested = false;
             Jumped?.Invoke();
@@ -155,7 +147,7 @@ public class FirstPersonMovement : MonoBehaviour
         {
             Grounded?.Invoke();
         }
-        
+
         isGrounded = currentlyGrounded;
         wasGrounded = currentlyGrounded;
     }
@@ -164,18 +156,17 @@ public class FirstPersonMovement : MonoBehaviour
     {
         if (IsCrouched)
         {
-            // Try to stand up - check headroom
+
             Vector3 castOrigin = transform.position + Vector3.up * crouchHeight;
             float castDistance = normalHeight - crouchHeight;
             float radius = capsuleCollider.radius * 0.9f;
-            
+
             if (Physics.SphereCast(castOrigin, radius, Vector3.up, out RaycastHit hit, castDistance, groundMask))
             {
-                // Headroom blocked, cannot stand up
+
                 return;
             }
 
-            // Stand up
             capsuleCollider.height = normalHeight;
             capsuleCollider.center = Vector3.up * (normalHeight / 2f);
             if (cameraTransform != null) cameraTransform.localPosition = new Vector3(cameraTransform.localPosition.x, headNormalY, cameraTransform.localPosition.z);
@@ -184,7 +175,7 @@ public class FirstPersonMovement : MonoBehaviour
         }
         else
         {
-            // Crouch down
+
             capsuleCollider.height = crouchHeight;
             capsuleCollider.center = Vector3.up * (crouchHeight / 2f);
             if (cameraTransform != null) cameraTransform.localPosition = new Vector3(cameraTransform.localPosition.x, crouchHeight * 0.8f, cameraTransform.localPosition.z);

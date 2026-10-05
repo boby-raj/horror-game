@@ -1,9 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Attach to Jerry Can / Fuel Canister.
-/// Can be picked up with [E] using PlayerInteraction or by walking into its trigger.
-/// </summary>
 public class FuelCanister : MonoBehaviour, IInteractable
 {
     [Header("Fuel Settings")]
@@ -48,7 +44,7 @@ public class FuelCanister : MonoBehaviour, IInteractable
     {
         if (!isCollected && other.CompareTag("Player"))
         {
-            // If hover prompt is active or auto pickup enabled
+
             if (hoverPrompt != null && hoverPrompt.activeSelf)
             {
                 Collect();

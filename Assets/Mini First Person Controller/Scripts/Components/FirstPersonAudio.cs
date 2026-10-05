@@ -44,7 +44,7 @@ public class FirstPersonAudio : MonoBehaviour
     void FixedUpdate()
     {
         if (!character) return;
-        
+
         float velocity = Vector3.Distance(CurrentCharacterPosition, lastCharacterPosition);
         if (velocity >= velocityThreshold && character.isGrounded)
         {

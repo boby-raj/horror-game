@@ -7,8 +7,8 @@ public class keychain : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            targetDoor.UnlockDoor(); // Unlocks the assigned door
-            Destroy(gameObject);      // Removes the key from the world
+            targetDoor.UnlockDoor();
+            Destroy(gameObject);
         }
     }
 }

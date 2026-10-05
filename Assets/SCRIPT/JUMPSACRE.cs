@@ -10,12 +10,12 @@ public class JUMPSACRE : MonoBehaviour
    public GameObject obj2;
    public GameObject obj3;
    bool isin=false;
-//   private bool aalo=obj.activeSelf;
+
     void OnTriggerEnter(Collider other)
     {
         obj.SetActive(false);
         obj2.SetActive(true);
-    
+
         if (Input.GetKeyDown(KeyCode.F))
         {
             sour.PlayOneShot(clip);
@@ -35,7 +35,5 @@ public class JUMPSACRE : MonoBehaviour
                 count=0;
             }}
     }}
-
-    // Update is called once per frame
 
 }

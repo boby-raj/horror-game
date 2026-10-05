@@ -16,41 +16,34 @@ public class PlayerSaveManager : MonoBehaviour
         }
 #endif
 
-        // Check our flag from the Main Menu. Did they click Continue?
         if (PlayerPrefs.GetInt("LoadFromSave", 0) == 1)
         {
-            // Consume the flag so next time you press Play in the Editor, it won't keep overriding your placement
+
             PlayerPrefs.SetInt("LoadFromSave", 0);
             PlayerPrefs.Save();
 
-            // 1. Retrieve the saved coordinates
             float savedX = PlayerPrefs.GetFloat("PlayerX");
             float savedY = PlayerPrefs.GetFloat("PlayerY");
             float savedZ = PlayerPrefs.GetFloat("PlayerZ");
 
             Debug.Log($"[PlayerSaveManager] Loading saved game! Teleporting player to: ({savedX}, {savedY}, {savedZ})");
 
-            // 2. CRITICAL UNITY FIX: If your player uses a CharacterController, 
-            // you CANNOT teleport them while it is active. It will fight the code.
             CharacterController controller = GetComponent<CharacterController>();
             if (controller != null)
             {
-                controller.enabled = false; // Turn off the physics
+                controller.enabled = false;
             }
 
-            // 3. Teleport the player to the exact spot they quit
             transform.position = new Vector3(savedX, savedY, savedZ);
 
-            // 4. Turn the physics back on
             if (controller != null)
             {
-                controller.enabled = true; 
+                controller.enabled = true;
             }
         }
         else
         {
-            // If they clicked "New Game" or are testing in editor, we do nothing. 
-            // The player just spawns exactly where you placed them in the Unity editor.
+
             Debug.Log($"[PlayerSaveManager] Spawning player at scene placed position: {transform.position}");
         }
     }

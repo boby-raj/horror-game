@@ -38,7 +38,7 @@ public class PauseManager : MonoBehaviour
 
     void Start()
     {
-        // Ensure game runs normally and cursor is locked when playing
+
         Time.timeScale = 1f;
         if (pauseMenuPanel != null)
         {
@@ -49,7 +49,7 @@ public class PauseManager : MonoBehaviour
 
     void Update()
     {
-        // Trigger pause/resume exclusively with the Escape key
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isPaused)
@@ -65,14 +65,11 @@ public class PauseManager : MonoBehaviour
 
         if (!isPaused) return;
 
-        // Keep cursor unlocked while paused in case any other script tries to lock it
         if (Cursor.lockState != CursorLockMode.None || !Cursor.visible)
         {
             UnlockCursor();
         }
 
-        // Direct unscaled pointer hover + click detection so Pause Menu buttons
-        // ALWAYS respond even when Time.timeScale == 0 or another Canvas (like FadeScreen) exists.
         HandleDirectPauseMenuInput();
     }
 
@@ -85,7 +82,6 @@ public class PauseManager : MonoBehaviour
         bool overQuit = IsMouseOverButton(quitButton, quitButtonText, mousePos);
         bool overResume = !overQuit && IsMouseOverButton(resumeButton, resumeButtonText, mousePos);
 
-        // Apply visual hover feedback (works even at Time.timeScale = 0)
         if (quitButton != null)
         {
             quitButton.transform.localScale = overQuit ? quitOrigScale * 1.1f : quitOrigScale;
@@ -104,7 +100,6 @@ public class PauseManager : MonoBehaviour
             }
         }
 
-        // Handle Left Mouse Click on button release (MouseUp) so the click does not carry over into MainMenu buttons
         if (Input.GetMouseButtonUp(0))
         {
             if (overQuit)
@@ -149,7 +144,6 @@ public class PauseManager : MonoBehaviour
     {
         if (pauseMenuPanel == null) return;
 
-        // 1. Put the PauseMenuPanel's Canvas on a high sortingOrder so secondary Canvases (like HARSHA/Canvas/FadeScreen) cannot block it
         Canvas parentCanvas = pauseMenuPanel.GetComponentInParent<Canvas>();
         if (parentCanvas != null)
         {
@@ -160,7 +154,6 @@ public class PauseManager : MonoBehaviour
             }
         }
 
-        // 2. Disable raycastTarget on any full-screen 'FadeScreen' image that blocks mouse clicks across the screen
         Image[] allImages = FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (Image img in allImages)
         {
@@ -170,7 +163,6 @@ public class PauseManager : MonoBehaviour
             }
         }
 
-        // 3. Configure Resume and Quit buttons
         Button[] buttons = pauseMenuPanel.GetComponentsInChildren<Button>(true);
         foreach (Button btn in buttons)
         {
@@ -229,10 +221,10 @@ public class PauseManager : MonoBehaviour
             pauseMenuPanel.SetActive(true);
         }
 
-        Time.timeScale = 0f; // Freeze time
+        Time.timeScale = 0f;
         isPaused = true;
 
-        UnlockCursor(); // Show the mouse so they can click the menu
+        UnlockCursor();
     }
 
     public void ResumeGame()
@@ -244,10 +236,10 @@ public class PauseManager : MonoBehaviour
             pauseMenuPanel.SetActive(false);
         }
 
-        Time.timeScale = 1f; // Unfreeze time
+        Time.timeScale = 1f;
         isPaused = false;
 
-        LockCursor(); // Hide and lock the mouse again for gameplay
+        LockCursor();
     }
 
     public void QuitToMenu()
@@ -258,21 +250,17 @@ public class PauseManager : MonoBehaviour
             if (playerObj != null) playerTransform = playerObj.transform;
         }
 
-        // 1. Save the player's exact X, Y, and Z positions if playerTransform is available
         if (playerTransform != null)
         {
             PlayerPrefs.SetFloat("PlayerX", playerTransform.position.x);
             PlayerPrefs.SetFloat("PlayerY", playerTransform.position.y);
             PlayerPrefs.SetFloat("PlayerZ", playerTransform.position.z);
 
-            // 2. Tell the main menu that a save file now exists
             PlayerPrefs.SetInt("HasSavedGame", 1);
 
-            // 3. Force Unity to write this to the hard drive immediately
             PlayerPrefs.Save();
         }
 
-        // 4. Unfreeze time, keep cursor unlocked for the menu, and load the menu
         isPaused = false;
         Time.timeScale = 1f;
         UnlockCursor();
@@ -294,7 +282,6 @@ public class PauseManager : MonoBehaviour
         }
     }
 
-    // --- Cursor Management Methods ---
     private void LockCursor()
     {
         Cursor.lockState = CursorLockMode.Locked;

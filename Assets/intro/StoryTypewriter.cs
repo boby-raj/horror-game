@@ -13,13 +13,13 @@ public class StoryTypewriter : MonoBehaviour
     [Header("Story Settings")]
     [TextArea(3, 10)]
     public string fullStory = "You were just going in for a routine extraction...\n\nBut the waiting room was empty.\n\nAnd the screaming hasn't stopped.";
-    
+
     public float typingSpeed = 0.05f;
     public float delayAfterStory = 4.0f;
-    
+
     [Header("Audio Settings")]
     public AudioSource typewriterAudio;
-    
+
     [Header("Video Cutscene Settings")]
     [Tooltip("Reference to PlayVideoAfterText if present in the scene (optional, auto-detected)")]
     public PlayVideoAfterText videoController;
@@ -42,13 +42,12 @@ public class StoryTypewriter : MonoBehaviour
 
     void Awake()
     {
-        // 1. Auto-detect typewriter audio if not assigned
+
         if (typewriterAudio == null)
         {
             typewriterAudio = GetComponent<AudioSource>() ?? FindFirstObjectByType<AudioSource>();
         }
 
-        // 2. Auto-detect video controller and video player
         if (videoController == null)
         {
             videoController = FindFirstObjectByType<PlayVideoAfterText>();
@@ -59,7 +58,6 @@ public class StoryTypewriter : MonoBehaviour
             videoPlayer = FindFirstObjectByType<VideoPlayer>();
         }
 
-        // 3. Auto-detect video display screen (RawImage)
         if (videoScreenObject == null)
         {
             RawImage rawImg = FindFirstObjectByType<RawImage>();
@@ -69,7 +67,6 @@ public class StoryTypewriter : MonoBehaviour
             }
         }
 
-        // Ensure video screen is initially hidden so it doesn't cover story text
         if (videoScreenObject != null)
         {
             videoScreenObject.SetActive(false);
@@ -91,7 +88,6 @@ public class StoryTypewriter : MonoBehaviour
     {
         if (!allowSkip) return;
 
-        // Only allow skipping while text is still typing; never stop or skip the video once it starts
         if (isTyping && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(0)))
         {
             skipRequested = true;
@@ -127,13 +123,11 @@ public class StoryTypewriter : MonoBehaviour
         isTyping = true;
         skipRequested = false;
 
-        // Start typing audio
         if (typewriterAudio != null && !typewriterAudio.isPlaying)
         {
             typewriterAudio.Play();
         }
 
-        // Type letter by letter
         for (int i = 0; i < fullStory.Length; i++)
         {
             if (skipRequested)
@@ -156,13 +150,11 @@ public class StoryTypewriter : MonoBehaviour
 
         isTyping = false;
 
-        // Stop typing audio immediately when text is complete
         if (typewriterAudio != null && typewriterAudio.isPlaying)
         {
             typewriterAudio.Stop();
         }
 
-        // Pause for reading
         float elapsed = 0f;
         skipRequested = false;
         while (elapsed < delayAfterStory)
@@ -175,13 +167,11 @@ public class StoryTypewriter : MonoBehaviour
             yield return null;
         }
 
-        // Hide story text before starting the video
         if (storyText != null)
         {
             storyText.gameObject.SetActive(false);
         }
 
-        // Start video sequence
         StartVideoSequence();
     }
 
@@ -223,7 +213,6 @@ public class StoryTypewriter : MonoBehaviour
         videoPlayer.playOnAwake = false;
         videoPlayer.waitForFirstFrame = true;
 
-        // Audio configuration
         if (videoPlayer.audioOutputMode == VideoAudioOutputMode.AudioSource)
         {
             AudioSource source = videoPlayer.GetTargetAudioSource(0);
@@ -239,10 +228,8 @@ public class StoryTypewriter : MonoBehaviour
             videoPlayer.SetDirectAudioVolume(0, 1.0f);
         }
 
-        // Video player aspect ratio
         videoPlayer.aspectRatio = VideoAspectRatio.FitInside;
 
-        // Auto 1920x1080 RenderTexture configuration
         if (videoPlayer.renderMode == VideoRenderMode.RenderTexture)
         {
             if (videoPlayer.targetTexture != null)
@@ -264,7 +251,6 @@ public class StoryTypewriter : MonoBehaviour
             }
         }
 
-        // Screen configuration (16:9 Aspect Ratio)
         if (videoScreenObject != null)
         {
             RawImage rawImage = videoScreenObject.GetComponent<RawImage>();
@@ -277,7 +263,6 @@ public class StoryTypewriter : MonoBehaviour
                 rect.offsetMin = Vector2.zero;
                 rect.offsetMax = Vector2.zero;
 
-                // Ensure AspectRatioFitter locks the display to exact 1920:1080 (16:9)
                 AspectRatioFitter fitter = videoScreenObject.GetComponent<AspectRatioFitter>();
                 if (fitter == null)
                 {

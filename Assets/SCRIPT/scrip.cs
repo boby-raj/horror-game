@@ -21,20 +21,18 @@ public class scrip : MonoBehaviour
         }
     }
 
-
     IEnumerator ExecuteWithDelay()
     {
-     
 
         anime.enabled = true;
         source.PlayOneShot(clip);
-        
+
         yield return new WaitForSeconds(2.0f);
         sami.SetActive(false);
     }
 
     void Update()
     {
-        
+
     }
 }

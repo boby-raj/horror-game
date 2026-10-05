@@ -5,10 +5,10 @@ public class SimpleHingeDoor : MonoBehaviour
     [Header("Door Settings")]
     public float openAngle = 90f;
     public float smoothSpeed = 2f;
-    
+
     [Header("Key Settings")]
     public bool requiresKey = false;
-    [SerializeField] private bool hasKey = false; // Changed to private with SerializeField
+    [SerializeField] private bool hasKey = false;
 
     [Header("Audio Settings")]
     public AudioSource audioSource;
@@ -45,8 +45,6 @@ public class SimpleHingeDoor : MonoBehaviour
         }
     }
 
-    // --- NEW METHOD ---
-    // Call this method from your Key Pickup script when the player grabs the key
     public void UnlockDoor()
     {
         hasKey = true;

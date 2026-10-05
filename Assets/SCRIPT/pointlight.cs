@@ -5,14 +5,13 @@ public class pointlight : MonoBehaviour
 {
     public GameObject light1;
     bool Is_lightup;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         light1.SetActive(false);
         Is_lightup = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
           if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -23,8 +22,8 @@ public class pointlight : MonoBehaviour
             }
             else
             {
-                  light1.SetActive(false); 
-                  Is_lightup = false;  
+                  light1.SetActive(false);
+                  Is_lightup = false;
             }
         }
     }

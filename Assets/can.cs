@@ -1,16 +1,10 @@
 using UnityEngine;
 
-/// <summary>
-/// Fuel Can script.
-/// Shows [E] prompt when player approaches or looks at the can.
-/// Pressing [E] collects ONLY this can, plays sound, hides prompt, and increments fuel count.
-/// </summary>
 public class lcan : MonoBehaviour, IInteractable
 {
-    // Global counter tracking how many fuel cans the player is currently holding
+
     public static int playerFuelCount = 0;
 
-    // Frame throttle to prevent picking up multiple cans on the exact same frame
     private static int lastPickupFrame = -1;
 
     [Header("UI Prompts")]
@@ -29,12 +23,11 @@ public class lcan : MonoBehaviour, IInteractable
     public bool inarea = false;
     public bool isUsed = false;
 
-    // Legacy serialized field preserved for Unity scene compatibility
     [HideInInspector] public GameObject thep;
 
     private void Start()
     {
-        // Auto-find [E] UI if not assigned or broken
+
         if (escreen == null)
         {
             GameObject eObj = GameObject.Find("[E]");
@@ -43,7 +36,6 @@ public class lcan : MonoBehaviour, IInteractable
 
         if (escreen != null) escreen.SetActive(false);
 
-        // Auto-detect AudioSource if not assigned
         if (source == null) source = GetComponent<AudioSource>();
         if (source == null) source = GetComponentInParent<AudioSource>();
     }
@@ -58,7 +50,6 @@ public class lcan : MonoBehaviour, IInteractable
     {
         if (isUsed) return;
 
-        // If player is inside the trigger zone or hovering
         if (inarea)
         {
             if (escreen != null && !escreen.activeSelf)
@@ -77,21 +68,17 @@ public class lcan : MonoBehaviour, IInteractable
     {
         if (isUsed) return;
 
-        // Prevent picking up multiple cans on the exact same frame
         if (Time.frameCount == lastPickupFrame) return;
         lastPickupFrame = Time.frameCount;
 
         isUsed = true;
         inarea = false;
 
-        // Increment player's fuel inventory
         playerFuelCount++;
         Debug.Log($"[FuelCan] Picked up fuel can! Player is now holding: {playerFuelCount} can(s).");
 
-        // 1. Hide the [E] prompt
         if (escreen != null) escreen.SetActive(false);
 
-        // 2. Play pickup sound
         if (sound != null)
         {
             if (source != null)
@@ -104,25 +91,20 @@ public class lcan : MonoBehaviour, IInteractable
             }
         }
 
-        // 3. Enable held/inventory visual if assigned
         if (tru != null && tru != gameObject)
         {
             tru.SetActive(true);
         }
 
-        // 4. Also notify GeneratorSystem if used in the project
         if (GeneratorSystem.Instance != null)
         {
             GeneratorSystem.Instance.isPlayerHoldingFuel = true;
             GeneratorSystem.Instance.fuelPerCan = 60f;
         }
 
-        // 5. Deactivate ONLY THIS specific can GameObject!
-        // We DO NOT deactivate 'thep' so other cans remain in the scene!
         gameObject.SetActive(false);
     }
 
-    // --- Trigger Area Detection (Walking up to the can) ---
     private bool IsPlayer(Collider other)
     {
         if (other == null) return false;
@@ -165,7 +147,6 @@ public class lcan : MonoBehaviour, IInteractable
         }
     }
 
-    // --- IInteractable Implementation (Looking directly at the can with crosshair) ---
     public void OnHoverEnter()
     {
         if (isUsed) return;

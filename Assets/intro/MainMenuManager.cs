@@ -8,8 +8,8 @@ public class MainMenuManager : MonoBehaviour
     public Button continueButton;
 
     [Header("Scene Names")]
-    public string storyIntroSceneName = "StoryIntro";       // Sends New Game here
-    public string mainGameplaySceneName = "finalmapdone";   // Sends Continue here
+    public string storyIntroSceneName = "StoryIntro";
+    public string mainGameplaySceneName = "finalmapdone";
 
     private float menuLoadTime = 0f;
 
@@ -20,7 +20,6 @@ public class MainMenuManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // Check if the player has a save file
         if (continueButton != null)
         {
             if (PlayerPrefs.HasKey("HasSavedGame"))
@@ -29,32 +28,28 @@ public class MainMenuManager : MonoBehaviour
             }
             else
             {
-                continueButton.interactable = false; 
+                continueButton.interactable = false;
             }
         }
     }
 
     public void StartNewGame()
     {
-        // Ignore stray click carried over from the Pause Menu Quit button
+
         if (Time.unscaledTime - menuLoadTime < 0.4f) return;
 
-        // Flag 0: Fresh start
-        PlayerPrefs.SetInt("LoadFromSave", 0); 
-        
-        // Load the text story scene instead of the game
-        SceneManager.LoadScene(storyIntroSceneName); 
+        PlayerPrefs.SetInt("LoadFromSave", 0);
+
+        SceneManager.LoadScene(storyIntroSceneName);
     }
 
     public void ContinueGame()
     {
-        // Ignore stray click carried over from the Pause Menu Quit button
+
         if (Time.unscaledTime - menuLoadTime < 0.4f) return;
 
-        // Flag 1: Load saved coordinates
-        PlayerPrefs.SetInt("LoadFromSave", 1); 
-        
-        // Load the actual gameplay scene directly, skipping the story
+        PlayerPrefs.SetInt("LoadFromSave", 1);
+
         if (!string.IsNullOrEmpty(mainGameplaySceneName) && Application.CanStreamedLevelBeLoaded(mainGameplaySceneName))
         {
             SceneManager.LoadScene(mainGameplaySceneName);
@@ -73,7 +68,7 @@ public class MainMenuManager : MonoBehaviour
     public void QuitGame()
     {
         Debug.Log("Game Exiting...");
-        Application.Quit(); 
+        Application.Quit();
 
         #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;

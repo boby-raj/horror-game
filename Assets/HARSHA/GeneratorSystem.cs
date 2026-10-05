@@ -3,10 +3,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 
-/// <summary>
-/// Horror Generator System with Fuel Timer, Audio, Lighting Control, and UI Counter.
-/// Handles fueling, counting down remaining time, warning flickers, and automatic shutdown.
-/// </summary>
 public class GeneratorSystem : MonoBehaviour, IInteractable
 {
     public static GeneratorSystem Instance { get; private set; }
@@ -105,7 +101,7 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
 
     private void Update()
     {
-        // Support pressing E when standing inside trigger area
+
         if (playerInArea && Input.GetKeyDown(KeyCode.E))
         {
             Interact();
@@ -113,7 +109,6 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
 
         if (!isRunning) return;
 
-        // Count down fuel time
         if (currentFuelTime > 0)
         {
             currentFuelTime -= Time.deltaTime;
@@ -133,9 +128,6 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
         UpdateUI();
     }
 
-    /// <summary>
-    /// Adds fuel to the generator and starts it if not already running.
-    /// </summary>
     public void AddFuel(float seconds)
     {
         currentFuelTime = Mathf.Clamp(currentFuelTime + seconds, 0f, maxFuelTime);
@@ -156,9 +148,6 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
         }
     }
 
-    /// <summary>
-    /// Starts the generator and turns on connected lights/power.
-    /// </summary>
     public void StartGenerator()
     {
         if (currentFuelTime <= 0) return;
@@ -171,7 +160,7 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
 
     private IEnumerator StartSequence()
     {
-        // Play engine starter crank
+
         if (engineStartSound != null && engineAudioSource != null)
         {
             engineAudioSource.loop = false;
@@ -180,7 +169,6 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
             yield return new WaitForSeconds(engineStartSound.length * 0.85f);
         }
 
-        // Loop continuous engine hum
         if (engineLoopSound != null && engineAudioSource != null && isRunning)
         {
             engineAudioSource.loop = true;
@@ -193,9 +181,6 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
         UpdateUI();
     }
 
-    /// <summary>
-    /// Stops the generator and turns off connected lights/power.
-    /// </summary>
     public void StopGenerator()
     {
         isRunning = false;
@@ -207,7 +192,6 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
             flickerCoroutine = null;
         }
 
-        // Play shutoff sound
         if (engineAudioSource != null)
         {
             engineAudioSource.Stop();
@@ -223,13 +207,98 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
         UpdateUI();
     }
 
+    private LightmapData[] originalLightmaps;
+    private FlickeringLight[] cachedFlickers;
+
+    private bool IsRedLight(Light l)
+    {
+        if (l == null) return false;
+        Color c = l.color;
+        if (c.r > 0.4f && c.r > c.g * 1.8f && c.r > c.b * 1.8f)
+        {
+            return true;
+        }
+        if (l.gameObject.name.IndexOf("red", System.StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
     private void ApplyPowerState(bool powerOn)
     {
+        if (originalLightmaps == null || originalLightmaps.Length == 0)
+        {
+            originalLightmaps = LightmapSettings.lightmaps;
+        }
+
+        if (poweredLights == null || poweredLights.Length == 0)
+        {
+            Light[] allLights = FindObjectsByType<Light>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            System.Collections.Generic.List<Light> list = new System.Collections.Generic.List<Light>();
+            foreach (Light l in allLights)
+            {
+                if (l == null || l.type == LightType.Directional) continue;
+                if (IsRedLight(l))
+                {
+                    l.enabled = true;
+                    continue;
+                }
+                Transform curr = l.transform;
+                bool skip = false;
+                while (curr != null)
+                {
+                    if (curr.CompareTag("Player") || curr.CompareTag("MainCamera") ||
+                        curr.GetComponent<Camera>() != null ||
+                        curr.GetComponent<deadcollide>() != null ||
+                        curr.GetComponent<deadcollide2>() != null ||
+                        curr.name.IndexOf("Player", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        curr.name.IndexOf("Camera", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        curr.name.IndexOf("Flashlight", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        curr.name.IndexOf("FlippedTV", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        curr.name.IndexOf("horrorlady", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        skip = true;
+                        break;
+                    }
+                    curr = curr.parent;
+                }
+                if (!skip) list.Add(l);
+            }
+            poweredLights = list.ToArray();
+        }
+
+        if (cachedFlickers == null)
+        {
+            cachedFlickers = FindObjectsByType<FlickeringLight>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        }
+
+        if (cachedFlickers != null)
+        {
+            foreach (FlickeringLight fl in cachedFlickers)
+            {
+                if (fl == null) continue;
+                Light flLight = fl.myLight != null ? fl.myLight : fl.GetComponent<Light>();
+                if (flLight != null && IsRedLight(flLight))
+                {
+                    fl.enabled = true;
+                    continue;
+                }
+                fl.enabled = powerOn;
+            }
+        }
+
         if (poweredLights != null)
         {
             foreach (Light l in poweredLights)
             {
-                if (l != null) l.enabled = powerOn;
+                if (l == null) continue;
+                if (IsRedLight(l))
+                {
+                    l.enabled = true;
+                    continue;
+                }
+                l.enabled = powerOn;
             }
         }
 
@@ -240,6 +309,18 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
                 if (obj != null) obj.SetActive(powerOn);
             }
         }
+
+        if (powerOn)
+        {
+            if (originalLightmaps != null && originalLightmaps.Length > 0)
+            {
+                LightmapSettings.lightmaps = originalLightmaps;
+            }
+        }
+        else
+        {
+            LightmapSettings.lightmaps = new LightmapData[0];
+        }
     }
 
     private IEnumerator LowFuelFlickerRoutine()
@@ -248,7 +329,7 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
 
         while (isRunning && currentFuelTime <= lowFuelWarningThreshold && currentFuelTime > 0)
         {
-            // Flickering lights for horror tension
+
             if (poweredLights != null && poweredLights.Length > 0)
             {
                 foreach (Light l in poweredLights)
@@ -280,7 +361,7 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
 
             if (currentFuelTime <= lowFuelWarningThreshold)
             {
-                // Flashing red effect
+
                 bool flash = Mathf.PingPong(Time.time * 4f, 1f) > 0.5f;
                 timerText.color = flash ? lowFuelColor : normalColor;
             }
@@ -295,8 +376,6 @@ public class GeneratorSystem : MonoBehaviour, IInteractable
             timerText.color = lowFuelColor;
         }
     }
-
-    // --- IInteractable Implementation (Player looking at generator and pressing E) ---
 
     public void Interact()
     {

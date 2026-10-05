@@ -13,21 +13,21 @@ public class StartingScreen : MonoBehaviour
         startingScreen.SetActive(true);
         hud.SetActive(false);
         player = GameObject.FindWithTag("Player");
-       
+
         StartCoroutine(Starting());
     }
 
    IEnumerator Starting()
 {
     yield return new WaitForSeconds(waitTime);
-    
+
     startingScreen.SetActive(false);
     hud.SetActive(true);
-  
+
 }
-    // Update is called once per frame
+
     void Update()
     {
-        
+
     }
 }

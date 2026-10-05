@@ -13,8 +13,7 @@ public class SOUNDHORROR : MonoBehaviour
                 AUDIOOSOURCE.Play();
                 ANIM.enabled=true;
             }
-        }   
+        }
     }
-
 
 }

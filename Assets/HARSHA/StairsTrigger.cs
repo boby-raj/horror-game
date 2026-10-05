@@ -1,15 +1,8 @@
 using System.Collections;
-using System.Collections.Generic; // Added for List compatibility
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-/// <summary>
-/// Attach to the StairsTrigger GameObject (must have a BoxCollider set to Is Trigger).
-/// Sequence on player contact:
-///   1. Stops the generator (lever_script.StopGenerator()).
-///   2. Turns off all lights in the scene (including pointlightwork).
-///   3. Triggers the GhostHUD / staircase panel (same as the first door trigger).
-/// </summary>
 public class StairsTrigger : MonoBehaviour
 {
     [Header("GhostHUD / Staircase Panel Reference")]
@@ -47,7 +40,7 @@ public class StairsTrigger : MonoBehaviour
 
     private void Awake()
     {
-        // 1. Auto-find GhostHUD if not manually linked
+
         if (ghostHUD == null && panelObject != null)
         {
             ghostHUD = panelObject.GetComponentInChildren<GhostHUD>(true);
@@ -58,14 +51,11 @@ public class StairsTrigger : MonoBehaviour
             ghostHUD = FindFirstObjectByType<GhostHUD>(FindObjectsInactive.Include);
         }
 
-        // 2. Auto-find Generator if not manually linked
         if (generatorLever == null)
         {
             generatorLever = FindFirstObjectByType<lever_script>(FindObjectsInactive.Include);
         }
 
-        // 3. FIX: We cannot assign a List<GameObject> directly to a single GameObject variable.
-        // We leave allLightsParent untouched here. If you want a specific parent disabled, link it in the Unity Inspector.
     }
 
     private void OnTriggerEnter(Collider other)
@@ -78,40 +68,35 @@ public class StairsTrigger : MonoBehaviour
 
         StartCoroutine(ExecuteTriggerSequence());
 
-        // Disable collider so trigger never fires twice
         Collider col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
     }
 
     private IEnumerator ExecuteTriggerSequence()
     {
-        // 1. Optional delay before the power cuts
+
         if (shutoffDelay > 0f)
         {
             yield return new WaitForSeconds(shutoffDelay);
         }
 
-        // 2. Sound effect
         if (triggerAudio != null && powerCutSound != null)
         {
             triggerAudio.PlayOneShot(powerCutSound);
         }
 
-        // 3. SHUT DOWN GENERATOR (This automatically turns off lever_script's alllights)
         if (generatorLever != null)
         {
             generatorLever.StopGenerator();
             Debug.Log("[StairsTrigger] Generator stopped via lever_script.StopGenerator().");
         }
 
-        // 4. SHUT OFF ALL LIGHTS
         if (allLightsParent != null)
         {
             allLightsParent.SetActive(false);
             Debug.Log($"[StairsTrigger] Disabled lights parent: {allLightsParent.name}");
         }
 
-        // Turn off all scene lights or specific lights
         Light[] lights = (specificLightsToTurnOff != null && specificLightsToTurnOff.Length > 0)
             ? specificLightsToTurnOff
             : FindObjectsByType<Light>(FindObjectsSortMode.None);
@@ -121,7 +106,7 @@ public class StairsTrigger : MonoBehaviour
         {
             if (l != null && l.enabled)
             {
-                // Preserve player flashlight if present
+
                 if (l.CompareTag("MainCamera") || l.transform.IsChildOf(Camera.main != null ? Camera.main.transform : l.transform.root))
                 {
                     continue;
@@ -133,10 +118,9 @@ public class StairsTrigger : MonoBehaviour
         }
         Debug.Log($"[StairsTrigger] Extinguished {lightsCut} scene light(s).");
 
-        // 5. TRIGGER GHOSTHUD / STAIRCASE PANEL
         if (ghostHUD != null)
         {
-            // Ensure its GameObject and parent canvases are active
+
             GameObject hudGO = ghostHUD.gameObject;
             if (!hudGO.activeSelf) hudGO.SetActive(true);
 
@@ -147,7 +131,6 @@ public class StairsTrigger : MonoBehaviour
                 curr = curr.parent;
             }
 
-            // Optional custom text
             if (!string.IsNullOrEmpty(overrideHeading) && ghostHUD.headingText != null)
             {
                 ghostHUD.headingText.text = overrideHeading;
@@ -157,7 +140,6 @@ public class StairsTrigger : MonoBehaviour
                 ghostHUD.bodyText.text = overrideBody;
             }
 
-            // Trigger identical to first door
             ghostHUD.TriggerOpen();
             Debug.Log("[StairsTrigger] GhostHUD.TriggerOpen() successfully called!");
         }

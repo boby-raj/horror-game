@@ -4,11 +4,6 @@ using UnityEditor;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// Finds and disables all common UI prompt text objects in the scene,
-/// including searching inside text contents (like "PRESS [E] TO OPEN").
-/// Go to: Tools → Disable All UI Prompt Texts
-/// </summary>
 public class UIPromptFixer : EditorWindow
 {
     private static readonly string[] promptNames = new string[]
@@ -48,7 +43,6 @@ public class UIPromptFixer : EditorWindow
 
             bool shouldDisable = false;
 
-            // 1. Check by GameObject name
             foreach (string promptName in promptNames)
             {
                 if (obj.name.Equals(promptName, System.StringComparison.OrdinalIgnoreCase))
@@ -58,7 +52,6 @@ public class UIPromptFixer : EditorWindow
                 }
             }
 
-            // 2. Check TextMeshPro text content (e.g. "PRESS [E] TO OPEN")
             if (!shouldDisable)
             {
                 TMP_Text tmp = obj.GetComponent<TMP_Text>();
@@ -72,7 +65,6 @@ public class UIPromptFixer : EditorWindow
                 }
             }
 
-            // 3. Check Legacy UI Text content
             if (!shouldDisable)
             {
                 Text legacyText = obj.GetComponent<Text>();

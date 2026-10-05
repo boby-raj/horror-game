@@ -1,11 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// ==========================================
-// SAVE MANAGER - one of these in your first/main scene
-// Persists across scene loads. Handles checkpoint saving,
-// respawn-after-capture, and "Continue" from the main menu.
-// ==========================================
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
@@ -58,7 +53,6 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    // Called by CheckpointTrigger when the player walks into a checkpoint zone
     public void SetCheckpoint(Vector3 position, Quaternion rotation)
     {
         checkpointPosition = position;
@@ -81,7 +75,6 @@ public class SaveManager : MonoBehaviour
         return PlayerPrefs.GetInt(KeyExists, 0) == 1;
     }
 
-    // Hook this up to your main menu's "Continue" button
     public static void ContinueGame()
     {
         if (!HasSavedGame())
@@ -91,10 +84,9 @@ public class SaveManager : MonoBehaviour
         }
         string sceneName = PlayerPrefs.GetString(KeyScene, SceneManager.GetActiveScene().name);
         SceneManager.LoadScene(sceneName);
-        // Player gets placed at the checkpoint automatically once the scene loads.
+
     }
 
-    // Hook this up to a "New Game" button if you want it to clear old saves
     public static void ClearSave()
     {
         PlayerPrefs.DeleteKey(KeyX);
@@ -127,12 +119,11 @@ public class SaveManager : MonoBehaviour
         hasCheckpoint = true;
     }
 
-    // Call this after a capture/death to put the player back at the last checkpoint
     public void RespawnPlayer()
     {
         if (!hasCheckpoint || player == null) return;
 
-        player.enabled = false; // must disable CharacterController before teleporting it
+        player.enabled = false;
         player.transform.position = checkpointPosition;
         player.transform.rotation = checkpointRotation;
         player.enabled = true;
@@ -141,4 +132,3 @@ public class SaveManager : MonoBehaviour
     }
 }
 
-// CheckpointTrigger now lives in its own file: CheckpointTrigger.cs

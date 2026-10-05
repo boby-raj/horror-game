@@ -3,11 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>
-/// Central UI Manager for reading notes and papers in the game.
-/// Handles opening/closing animations, pausing the game, unlocking/relocking the mouse,
-/// and disabling player camera and movement controls while reading.
-/// </summary>
 public class NoteManager : MonoBehaviour
 {
     public static NoteManager Instance { get; private set; }
@@ -84,10 +79,8 @@ public class NoteManager : MonoBehaviour
             defaultFontSize = bodyText.fontSize;
         }
 
-        // 1. Ensure an EventSystem exists in the scene so UI buttons can receive clicks
         EnsureEventSystem();
 
-        // 2. Auto-find closeButton if unassigned
         if (closeButton == null)
         {
             Button[] allBtns = GetComponentsInChildren<Button>(true);
@@ -104,11 +97,10 @@ public class NoteManager : MonoBehaviour
 
         if (closeButton != null)
         {
-            // Ensure button image receives raycasts
+
             Image btnImg = closeButton.GetComponent<Image>();
             if (btnImg != null) btnImg.raycastTarget = true;
 
-            // Disable raycast target on child text ('X') so it doesn't intercept the click
             TextMeshProUGUI[] childTexts = closeButton.GetComponentsInChildren<TextMeshProUGUI>(true);
             foreach (var txt in childTexts)
             {
@@ -202,16 +194,12 @@ public class NoteManager : MonoBehaviour
     {
         if (!IsReading) return;
 
-        // Close note on E, Escape, Space, or Return
         if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
         {
             CloseNote();
         }
     }
 
-    /// <summary>
-    /// Opens the note UI with custom content or from a NoteData asset.
-    /// </summary>
     public void ShowNote(string content, string title = "", NoteData data = null, System.Action onCloseCallback = null)
     {
         if (IsReading) return;
@@ -220,10 +208,8 @@ public class NoteManager : MonoBehaviour
         pendingOnCloseCallback = onCloseCallback;
         FindPlayerReferences();
 
-        // 1. Lock player movement and unlock cursor
         LockPlayerControls(true);
 
-        // 2. Setup text and visual styling
         string finalTitle = title;
         string finalBody = content;
         Sprite finalPaper = defaultPaperSprite;
@@ -301,13 +287,11 @@ public class NoteManager : MonoBehaviour
             backgroundDimmerButton.interactable = true;
         }
 
-        // 3. Play audio
         if (audioSource != null && openSfx != null)
         {
             audioSource.PlayOneShot(openSfx);
         }
 
-        // 4. Show Canvas and animate
         if (noteCanvas != null) noteCanvas.SetActive(true);
         if (paperRect != null) paperRect.gameObject.SetActive(true);
 
@@ -327,7 +311,6 @@ public class NoteManager : MonoBehaviour
             if (paperRect != null) paperRect.localScale = Vector3.one;
         }
 
-        // 5. Optionally pause time
         if (pauseGameWhileReading)
         {
             Time.timeScale = 0f;
@@ -341,13 +324,11 @@ public class NoteManager : MonoBehaviour
         IsReading = false;
         justClosedFrame = Time.frameCount;
 
-        // Restore game time first
         if (pauseGameWhileReading)
         {
             Time.timeScale = 1f;
         }
 
-        // Play close sound
         if (audioSource != null && defaultCloseSound != null)
         {
             audioSource.PlayOneShot(defaultCloseSound);
@@ -372,10 +353,9 @@ public class NoteManager : MonoBehaviour
 
     private void FinishClosing()
     {
-        // 1. Immediately restore player controls and lock cursor FIRST
+
         LockPlayerControls(false);
 
-        // 2. Clear canvas group interactability
         if (canvasGroup != null)
         {
             canvasGroup.alpha = 0f;
@@ -383,15 +363,12 @@ public class NoteManager : MonoBehaviour
             canvasGroup.blocksRaycasts = false;
         }
 
-        // 3. Trigger callback if any (e.g. jump scare or quest update)
         pendingOnCloseCallback?.Invoke();
         pendingOnCloseCallback = null;
 
-        // 4. Disable visual panel
         if (paperRect != null) paperRect.gameObject.SetActive(false);
         if (closePromptText != null) closePromptText.SetActive(false);
 
-        // Only deactivate noteCanvas if it is NOT this NoteManager itself
         if (noteCanvas != null && noteCanvas != gameObject)
         {
             noteCanvas.SetActive(false);
@@ -413,7 +390,7 @@ public class NoteManager : MonoBehaviour
         }
         else
         {
-            // IMMEDIATELY re-enable all controls and relock cursor
+
             if (playerMovement != null) playerMovement.enabled = true;
             if (cameraLook != null) cameraLook.enabled = true;
             if (playerInteraction != null) playerInteraction.enabled = true;

@@ -19,8 +19,9 @@ public class FlickeringLight : MonoBehaviour
         }
     }
 
-    void Start()
+    void OnEnable()
     {
+        StopAllCoroutines();
         if (myLight != null)
         {
             StartCoroutine(Flicker());
@@ -31,15 +32,24 @@ public class FlickeringLight : MonoBehaviour
         }
     }
 
+    void OnDisable()
+    {
+        StopAllCoroutines();
+        if (myLight != null)
+        {
+            myLight.enabled = false;
+        }
+    }
+
     IEnumerator Flicker()
     {
-        while (myLight != null)
+        while (myLight != null && enabled && gameObject.activeInHierarchy)
         {
             myLight.enabled = true;
             yield return new WaitForSeconds(onDuration);
-            if (myLight == null) yield break;
+            if (myLight == null || !enabled || !gameObject.activeInHierarchy) yield break;
             myLight.enabled = false;
             yield return new WaitForSeconds(offDuration);
         }
     }
-}   
+}

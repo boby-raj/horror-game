@@ -2,30 +2,30 @@ using UnityEngine;
 
 public class deadcollide : MonoBehaviour
 {
-   public GameObject c1;
-   public GameObject c2;
-   public AudioSource p;
+    public GameObject c1;
+    public AudioSource p;
 
-    // Start is called before the first frame update
     void Start()
     {
-        c1.SetActive(false);
-        c2.SetActive(false);
-    }
-  
-   void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.tag == "Player")
+        if (c1 != null)
         {
-            c1.SetActive(true);
-            c2.SetActive(true);
-            p.PlayOneShot(p.clip);
+            c1.SetActive(false);
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("Player"))
+        {
+            if (c1 != null)
+            {
+                c1.SetActive(true);
+            }
+
+            if (p != null)
+            {
+                p.Play();
+            }
+        }
     }
 }

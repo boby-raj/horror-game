@@ -3,7 +3,7 @@ using UnityEngine;
 public class GhostNoteItem : MonoBehaviour, IInteractable
 {
     [Header("UI Connection")]
-    public GhostHUD hudToTrigger; // Drag your UI Canvas with the GhostHUD script into here!
+    public GhostHUD hudToTrigger;
 
     private Renderer meshRenderer;
     private Color originalColor;
@@ -16,7 +16,7 @@ public class GhostNoteItem : MonoBehaviour, IInteractable
 
     public void OnHoverEnter()
     {
-        // Optional: Make the paper glow so the player knows they can read it
+
         if (meshRenderer != null) meshRenderer.material.color = Color.yellow;
     }
 
@@ -27,13 +27,12 @@ public class GhostNoteItem : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        // When the player looks at the note and presses 'E', trigger the spooky UI popup!
+
         if (hudToTrigger != null)
         {
             hudToTrigger.TriggerOpen();
-            
-            // Turn off the yellow highlight while reading
-            if (meshRenderer != null) meshRenderer.material.color = originalColor; 
+
+            if (meshRenderer != null) meshRenderer.material.color = originalColor;
         }
         else
         {

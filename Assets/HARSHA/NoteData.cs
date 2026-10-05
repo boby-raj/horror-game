@@ -1,10 +1,6 @@
 using UnityEngine;
 using TMPro;
 
-/// <summary>
-/// ScriptableObject asset representing a readable note in the game.
-/// Create new notes via Right Click -> Create -> Horror Game -> Note Data.
-/// </summary>
 [CreateAssetMenu(fileName = "NewNoteData", menuName = "Horror Game/Note Data")]
 public class NoteData : ScriptableObject
 {

@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class PitResetTrigger : MonoBehaviour
 {
     private bool hasTriggered = false;
- public AudioSource audioSource; // Reference to the AudioSource component
+ public AudioSource audioSource;
     private void Awake()
     {
         Collider col = GetComponent<Collider>();
@@ -23,7 +23,7 @@ public class PitResetTrigger : MonoBehaviour
         {
             hasTriggered = true;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            audioSource.Play(); // Play the audio clip when the player enters the trigger
+            audioSource.Play();
         }
     }
 }

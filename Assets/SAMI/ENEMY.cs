@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ENEMY : MonoBehaviour
 {
-        public GameObject enemyPrefab; 
+        public GameObject enemyPrefab;
 
 void oncollisionEnter(Collision collision)
     {
@@ -11,6 +11,5 @@ void oncollisionEnter(Collision collision)
         enemyPrefab.SetActive(true);
         }
     }
-  
-   
+
 }

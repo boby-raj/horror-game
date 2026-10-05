@@ -1,14 +1,35 @@
 fileFormatVersion: 2
 guid: e9d60fba024e7e1429c50aa7fc1afc79
 ModelImporter:
-  serializedVersion: 24200
+  serializedVersion: 24300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Agatha_Dress
+    second: {fileID: 2100000, guid: 0a51d9f3f2007324394edb7d1932245d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Agatha_Dress_metal
+    second: {fileID: 2100000, guid: 616ab90e986b5074f91e6a2c607b28f7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Agatha_Hair
+    second: {fileID: 2100000, guid: 19068e52a0965e04f9461e09bcf03ad6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Agatha_Skin
+    second: {fileID: 2100000, guid: f2caa251be767bd49affd9a3f3e84f00, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
     materialSearch: 1
     materialLocation: 1
+    searchTexturesGlobally: 1
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0

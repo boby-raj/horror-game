@@ -19,19 +19,17 @@ public class TriggerDeactivateTarget : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Check tag if one is specified
+
         if (!string.IsNullOrEmpty(requiredTag) && !other.CompareTag(requiredTag))
         {
             return;
         }
 
-        // Play the sound effect at the trigger's location
         if (triggerSound != null)
         {
             AudioSource.PlayClipAtPoint(triggerSound, transform.position, soundVolume);
         }
 
-        // Turn off the target GameObject
         if (targetToDeactivate != null)
         {
             targetToDeactivate.SetActive(false);

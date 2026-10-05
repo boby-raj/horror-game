@@ -5,14 +5,6 @@ using UnityEngine.AI;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Horror enemy AI: Patrol -> Chase -> Investigate -> Patrol, plus a Caught (jumpscare) state.
-/// Requires a baked NavMesh. Field names match the previous version so Inspector values are kept.
-///
-/// Public API:
-///   HearNoise(position, radius)  -> call from footsteps, doors, thrown objects, etc.
-///   ResetEnemy()                 -> put the enemy back at its start position and into Patrol.
-/// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(NavMeshAgent))]
 public class PatrolAndChaseAi: MonoBehaviour
@@ -24,8 +16,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         Investigating,
         Caught
     }
-
-    // ------------------------------------------------------------------ Inspector
 
     [Header("Current State (Debug)")]
     public AIState currentState = AIState.Patrol;
@@ -134,8 +124,6 @@ public class PatrolAndChaseAi: MonoBehaviour
     public UnityEvent onChaseEnded;
     public UnityEvent onPlayerCaught;
 
-    // ------------------------------------------------------------------ Runtime
-
     private NavMeshAgent agent;
     private Animator animator;
 
@@ -156,18 +144,15 @@ public class PatrolAndChaseAi: MonoBehaviour
     private bool initialized;
     private bool hasCaughtPlayer;
 
-    // Perception
     private bool canSeePlayer;
     private float senseTimer;
     private float lostSightTimer;
     private Vector3 lastKnownPlayerPosition;
 
-    // Movement
     private Vector3 lastRequestedDestination;
     private bool hasRequestedDestination;
     private float lastDestinationTime = -10f;
 
-    // Patrol
     private int currentWaypointIndex;
     private bool waitingAtPoint;
     private float waitTimer;
@@ -175,18 +160,14 @@ public class PatrolAndChaseAi: MonoBehaviour
     private bool hasRoamDestination;
     private float roamTimer;
 
-    // Investigate
     private float searchTimer;
     private float investigateTimer;
     private bool searching;
 
-    // Audio
     private float chaseMusicMaxVolume = 1f;
 
     private float ScaleY => transform.lossyScale.y > 0.01f ? transform.lossyScale.y : 1f;
     private Vector3 EyePosition => transform.position + Vector3.up * (eyeHeight * ScaleY);
-
-    // ------------------------------------------------------------------ Unity lifecycle
 
     private void Awake()
     {
@@ -209,7 +190,7 @@ public class PatrolAndChaseAi: MonoBehaviour
         {
             jumpscareSource = gameObject.AddComponent<AudioSource>();
             jumpscareSource.playOnAwake = false;
-            jumpscareSource.spatialBlend = 0f; // 2D jumpscare
+            jumpscareSource.spatialBlend = 0f;
         }
 
         if (chaseMusicSource != null)
@@ -230,7 +211,7 @@ public class PatrolAndChaseAi: MonoBehaviour
 
     private void OnEnable()
     {
-        // Handles the enemy being deactivated and reactivated (checkpoints, room streaming)
+
         if (initialized)
         {
             EnsureOnNavMesh();
@@ -250,7 +231,7 @@ public class PatrolAndChaseAi: MonoBehaviour
 
         if (!agent.enabled || !agent.isOnNavMesh)
         {
-            // If in mid-air or off-mesh, pull down towards the floor geometry
+
             if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit groundHit, 50f, obstacleMask, QueryTriggerInteraction.Ignore))
             {
                 if (transform.position.y > groundHit.point.y + 0.05f)
@@ -267,14 +248,12 @@ public class PatrolAndChaseAi: MonoBehaviour
             return;
         }
 
-        // 1. Catch check (cheap math every frame)
         if (IsPlayerInCatchRange())
         {
             CatchPlayer();
             return;
         }
 
-        // 2. Vision (throttled)
         senseTimer -= Time.deltaTime;
         if (senseTimer <= 0f)
         {
@@ -282,7 +261,6 @@ public class PatrolAndChaseAi: MonoBehaviour
             canSeePlayer = EvaluateSight();
         }
 
-        // 3. State machine
         switch (currentState)
         {
             case AIState.Patrol: UpdatePatrol(); break;
@@ -305,8 +283,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         if (hasCaughtPlayer) return;
         if (IsPlayerTransform(collision.transform)) CatchPlayer();
     }
-
-    // ------------------------------------------------------------------ Setup helpers
 
     private void CacheAnimatorParameters()
     {
@@ -388,14 +364,12 @@ public class PatrolAndChaseAi: MonoBehaviour
 
         if (agent.isOnNavMesh) return;
 
-        // 1. Nearby check (5m)
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 5f, NavMesh.AllAreas))
         {
             agent.Warp(hit.position);
             return;
         }
 
-        // 2. Downward raycast to ground floor
         if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit groundHit, 100f, ~0, QueryTriggerInteraction.Ignore))
         {
             if (NavMesh.SamplePosition(groundHit.point, out NavMeshHit groundNavHit, 5f, NavMesh.AllAreas))
@@ -406,7 +380,6 @@ public class PatrolAndChaseAi: MonoBehaviour
             transform.position = groundHit.point;
         }
 
-        // 3. Fallback wider sample radius (50m)
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit fallbackHit, 50f, NavMesh.AllAreas))
         {
             agent.Warp(fallbackHit.position);
@@ -440,9 +413,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         }
     }
 
-    // ------------------------------------------------------------------ Public API
-
-    /// <summary>Make a noise at a position. Enemies within 'radius' investigate it.</summary>
     public void HearNoise(Vector3 position, float radius)
     {
         if (!canHear || hasCaughtPlayer || currentState == AIState.Chase || currentState == AIState.Caught) return;
@@ -452,7 +422,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         StartInvestigating();
     }
 
-    /// <summary>Returns the enemy to its start position in Patrol state.</summary>
     public void ResetEnemy()
     {
         StopAllCoroutines();
@@ -474,8 +443,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         ResetBrain();
     }
 
-    // ------------------------------------------------------------------ Perception
-
     private bool EvaluateSight()
     {
         if (targetCharacter == null) return false;
@@ -490,7 +457,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         Vector3 eye = EyePosition;
         Vector3 targetPoint = targetCharacter.position + Vector3.up * playerTargetHeight;
 
-        // Field of view only applies when not chasing and not up close
         if (!chasing && distance > closeSenseRange)
         {
             Vector3 dir = (targetPoint - eye).normalized;
@@ -515,7 +481,7 @@ public class PatrolAndChaseAi: MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Transform t = hitBuffer[i].transform;
-            if (t == transform || t.IsChildOf(transform)) continue; // ignore own body
+            if (t == transform || t.IsChildOf(transform)) continue;
 
             if (hitBuffer[i].distance < nearest)
             {
@@ -527,7 +493,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         if (nearestTransform == null) return true;
         if (IsPlayerTransform(nearestTransform)) return true;
 
-        // Something solid in front of the player. Tiny gaps right at the player are tolerated.
         return nearest >= dist - 0.4f;
     }
 
@@ -554,12 +519,9 @@ public class PatrolAndChaseAi: MonoBehaviour
         float flat = delta.magnitude;
         if (flat > catchDistance) return false;
 
-        // In melee attack range: trigger attack!
         if (flat <= 2.2f) return true;
         return HasClearLine(EyePosition, targetCharacter.position + Vector3.up * playerTargetHeight);
     }
-
-    // ------------------------------------------------------------------ States
 
     private void UpdatePatrol()
     {
@@ -593,7 +555,6 @@ public class PatrolAndChaseAi: MonoBehaviour
             }
         }
 
-        // While sight is briefly lost, run to the last known position
         MoveTo(canSeePlayer ? targetCharacter.position : lastKnownPlayerPosition, chaseSpeed);
     }
 
@@ -691,8 +652,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         if (animator != null) animator.speed = 1f;
     }
 
-    // ------------------------------------------------------------------ Patrol logic
-
     private bool HasValidWaypoints()
     {
         if (waypoints == null) return false;
@@ -705,7 +664,7 @@ public class PatrolAndChaseAi: MonoBehaviour
 
     private void PatrolWaypoints()
     {
-        // Skip any empty slots
+
         int safety = waypoints.Length;
         while (waypoints[currentWaypointIndex] == null && safety-- > 0)
         {
@@ -791,8 +750,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         return false;
     }
 
-    // ------------------------------------------------------------------ Movement
-
     private void MoveTo(Vector3 position, float speed)
     {
         if (!agent.enabled || !agent.isOnNavMesh) return;
@@ -833,8 +790,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         return NavMesh.SamplePosition(position, out NavMeshHit hit, 2.5f, NavMesh.AllAreas) ? hit.position : position;
     }
 
-    // ------------------------------------------------------------------ Animation & audio
-
     private void UpdateAnimator()
     {
         if (animator != null && hasSpeedParam)
@@ -866,8 +821,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         if (animator != null && exists) animator.SetBool(hash, value);
     }
 
-    // ------------------------------------------------------------------ Catch & jumpscare
-
     private void CatchPlayer()
     {
         if (hasCaughtPlayer) return;
@@ -879,7 +832,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         StartCoroutine(JumpscareSequence());
     }
 
-    // Screen blood attack effect
     private float bloodAlpha = 0f;
     private static Texture2D bloodTexture;
 
@@ -897,7 +849,7 @@ public class PatrolAndChaseAi: MonoBehaviour
             for (int x = 0; x < size; x++)
             {
                 float dist = Vector2.Distance(new Vector2(x, y), center) / maxDist;
-                // Vignette: center transparent, edges heavy blood red
+
                 float alpha = Mathf.SmoothStep(0.15f, 0.92f, dist);
                 pixels[y * size + x] = new Color(0.7f, 0.02f, 0.02f, alpha);
             }
@@ -920,7 +872,7 @@ public class PatrolAndChaseAi: MonoBehaviour
 
     private IEnumerator JumpscareSequence()
     {
-        // Stop the enemy
+
         if (agent.enabled && agent.isOnNavMesh)
         {
             agent.isStopped = true;
@@ -928,7 +880,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         }
         agent.enabled = false;
 
-        // Freeze the player
         disabledByCatch.Clear();
         playerControllerWasEnabled = playerController != null && playerController.enabled;
         if (playerController != null) playerController.enabled = false;
@@ -942,14 +893,12 @@ public class PatrolAndChaseAi: MonoBehaviour
             foreach (MonoBehaviour b in disableOnCatch) DisableForCatch(b);
         }
 
-        // Stop chase music instantly
         if (chaseMusicSource != null)
         {
             chaseMusicSource.volume = 0f;
             chaseMusicSource.Stop();
         }
 
-        // Play jumpscare scream
         if (jumpscareSource != null)
         {
             if (jumpscareClip != null) jumpscareSource.clip = jumpscareClip;
@@ -960,7 +909,6 @@ public class PatrolAndChaseAi: MonoBehaviour
             AudioSource.PlayClipAtPoint(jumpscareClip, transform.position);
         }
 
-        // Play secondary attack hit impact if assigned
         if (attackHitClip != null)
         {
             AudioSource.PlayClipAtPoint(attackHitClip, transform.position);
@@ -968,25 +916,22 @@ public class PatrolAndChaseAi: MonoBehaviour
 
         if (animator != null)
         {
-            animator.speed = 2.2f; // violent attack frenzy
+            animator.speed = 2.2f;
             SetAnimBool(chasingHash, hasChasingParam, false);
             SetAnimBool(searchingHash, hasSearchingParam, false);
             if (hasCaughtParam) animator.SetTrigger(caughtHash);
         }
 
-        // Snap the monster in front of the player's face firmly on the floor
         if (playerCamera != null)
         {
             SnapToPlayerFace();
         }
 
-        // Start bloody screen attack flash
         bloodAlpha = 1.0f;
 
         Camera camComponent = playerCamera != null ? playerCamera.GetComponent<Camera>() : null;
         float originalFOV = camComponent != null ? camComponent.fieldOfView : 60f;
 
-        // Camera shake and lock onto monster head
         Vector3 originalCamLocalPos = playerCamera != null ? playerCamera.localPosition : Vector3.zero;
         float scaledEye = eyeHeight * ScaleY;
         float timer = 0f;
@@ -996,11 +941,9 @@ public class PatrolAndChaseAi: MonoBehaviour
             timer += Time.deltaTime;
             float progress = Mathf.Clamp01(timer / vibrationDuration);
 
-            // Shakes violently at the start, decaying over duration
             float curIntensity = Mathf.Lerp(vibrationIntensity, vibrationIntensity * 0.25f, progress);
             float curAngular = Mathf.Lerp(angularShakeIntensity, angularShakeIntensity * 0.2f, progress);
 
-            // Blood flash pulses and remains visible throughout the hit
             bloodAlpha = Mathf.Lerp(1.0f, 0.4f, progress);
 
             if (playerCamera != null)
@@ -1010,7 +953,7 @@ public class PatrolAndChaseAi: MonoBehaviour
                 if (look.sqrMagnitude > 0.0001f)
                 {
                     Quaternion baseRot = Quaternion.LookRotation(look.normalized);
-                    // Violent rotational shake: pitch, yaw, and intense roll
+
                     Quaternion jitter = Quaternion.Euler(
                         Random.Range(-curAngular, curAngular),
                         Random.Range(-curAngular, curAngular),
@@ -1024,7 +967,7 @@ public class PatrolAndChaseAi: MonoBehaviour
 
             if (camComponent != null)
             {
-                // Punch FOV zoom on impact
+
                 camComponent.fieldOfView = Mathf.Lerp(originalFOV - 10f, originalFOV, progress);
             }
 
@@ -1077,7 +1020,6 @@ public class PatrolAndChaseAi: MonoBehaviour
 
         Vector3 position = playerCamera.position + flatForward * distance;
 
-        // Ground snap: Cast down to find the floor so the monster stands firmly on the ground (never underground!)
         if (Physics.Raycast(position + Vector3.up * 1.5f, Vector3.down, out RaycastHit floorHit, 15f, obstacleMask, QueryTriggerInteraction.Ignore))
         {
             position.y = floorHit.point.y;
@@ -1094,9 +1036,6 @@ public class PatrolAndChaseAi: MonoBehaviour
         if (toCamera.sqrMagnitude > 0.0001f) transform.rotation = Quaternion.LookRotation(toCamera.normalized);
     }
 
-    // Freezes any of YOUR scripts on the player / camera whose name contains look, movement or camera.
-    // Unity / URP / TMP components (e.g. UniversalAdditionalCameraData) are skipped on purpose.
-    // Everything disabled here is tracked and re-enabled after respawn.
     private void DisableControlScriptsByName(Transform root)
     {
         if (root == null) return;
@@ -1136,8 +1075,6 @@ public class PatrolAndChaseAi: MonoBehaviour
 
         ResetEnemy();
     }
-
-    // ------------------------------------------------------------------ Gizmos
 
     private void OnDrawGizmosSelected()
     {

@@ -20,7 +20,7 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
     [Header("UI Elements (Drag TMP objects here)")]
     [Tooltip("The single UI text element used for all hover and interaction messages.")]
     public TMP_Text mainPromptUI;
-    
+
     [Tooltip("The separate UI text element that turns on when the puzzle is done.")]
     public TMP_Text puzzleCompleteUI;
 
@@ -37,7 +37,7 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
     private Material wallMaterial;
     private Color originalEmissionColor;
     private bool originallyHadEmission;
-    
+
     private bool isHovering = false;
     private Coroutine feedbackCoroutine;
 
@@ -66,7 +66,7 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        if (totalPlaced >= totalPartsRequired) return; 
+        if (totalPlaced >= totalPartsRequired) return;
 
         if (partsHeldByPlayer.Count > 0)
         {
@@ -105,7 +105,7 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
             wallMaterial.SetColor("_EmissionColor", glowColor);
         }
 
-        if (feedbackCoroutine == null && totalPlaced < totalPartsRequired) 
+        if (feedbackCoroutine == null && totalPlaced < totalPartsRequired)
         {
             UpdateHoverUI();
         }
@@ -142,14 +142,14 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
     private void UnlockDoor()
     {
         if (lockedDoor != null) lockedDoor.SetActive(false);
-        
-        if (wallMaterial != null && !originallyHadEmission) 
+
+        if (wallMaterial != null && !originallyHadEmission)
         {
             wallMaterial.DisableKeyword("_EMISSION");
         }
 
         if (feedbackCoroutine != null) StopCoroutine(feedbackCoroutine);
-        
+
         if (mainPromptUI != null) mainPromptUI.gameObject.SetActive(false);
         if (puzzleCompleteUI != null) puzzleCompleteUI.gameObject.SetActive(true);
     }
@@ -166,12 +166,11 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
     {
         mainPromptUI.text = message;
         mainPromptUI.gameObject.SetActive(true);
-        
+
         yield return new WaitForSeconds(duration);
-        
+
         feedbackCoroutine = null;
 
-        // Revert back to standard text if still looking, otherwise turn off
         if (isHovering && totalPlaced < totalPartsRequired)
         {
             UpdateHoverUI();

@@ -29,13 +29,12 @@ public class TriggeredLightFlicker : MonoBehaviour
 
     void Start()
     {
-        // Keep the light off initially
+
         if (targetLight != null)
         {
             targetLight.enabled = false;
         }
 
-        // Turn off material glow initially
         if (bulbRenderer != null)
         {
             bulbMaterial = bulbRenderer.material;
@@ -64,13 +63,11 @@ public class TriggeredLightFlicker : MonoBehaviour
             targetLight.enabled = true;
         }
 
-        // Play one-shot switch/spark sound
         if (triggerSFX != null)
         {
             triggerSFX.Play();
         }
 
-        // Start looping buzz sound
         if (buzzAudioLoop != null)
         {
             buzzAudioLoop.loop = true;

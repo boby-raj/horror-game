@@ -8,7 +8,7 @@ public class PlayVideoAfterText : MonoBehaviour
 {
     [Header("Components")]
     public VideoPlayer myVideoPlayer;
-    public GameObject rawImageObject; // Used to hide the video screen before it plays
+    public GameObject rawImageObject;
     public VideoClip videoClip;
 
     [Header("Transition Settings")]
@@ -34,7 +34,6 @@ public class PlayVideoAfterText : MonoBehaviour
             }
         }
 
-        // Hide screen initially so it doesn't block text
         if (rawImageObject != null)
         {
             rawImageObject.SetActive(false);
@@ -53,7 +52,7 @@ public class PlayVideoAfterText : MonoBehaviour
 
     void Update()
     {
-        // Video must play completely to the end even if the player presses Space or any other key.
+
     }
 
     private void EnsureVideoClipAssigned()
@@ -80,7 +79,6 @@ public class PlayVideoAfterText : MonoBehaviour
         }
     }
 
-    // Call this method exactly when your text finishes appearing
     public void StartVideo()
     {
         if (isVideoStarted) return;
@@ -109,7 +107,6 @@ public class PlayVideoAfterText : MonoBehaviour
         myVideoPlayer.playOnAwake = false;
         myVideoPlayer.waitForFirstFrame = true;
 
-        // Auto audio configuration
         if (myVideoPlayer.audioOutputMode == VideoAudioOutputMode.AudioSource)
         {
             AudioSource source = myVideoPlayer.GetTargetAudioSource(0);
@@ -125,10 +122,8 @@ public class PlayVideoAfterText : MonoBehaviour
             myVideoPlayer.SetDirectAudioVolume(0, 1.0f);
         }
 
-        // Video player aspect ratio
         myVideoPlayer.aspectRatio = VideoAspectRatio.FitInside;
 
-        // Auto 1920x1080 RenderTexture configuration
         if (myVideoPlayer.renderMode == VideoRenderMode.RenderTexture)
         {
             if (myVideoPlayer.targetTexture != null)
@@ -150,7 +145,6 @@ public class PlayVideoAfterText : MonoBehaviour
             }
         }
 
-        // Configure RawImage to fill canvas with exact 16:9 ratio
         if (rawImageObject != null)
         {
             RawImage rawImage = rawImageObject.GetComponent<RawImage>();
@@ -163,7 +157,6 @@ public class PlayVideoAfterText : MonoBehaviour
                 rect.offsetMin = Vector2.zero;
                 rect.offsetMax = Vector2.zero;
 
-                // Ensure AspectRatioFitter locks the display to exact 1920:1080 (16:9)
                 AspectRatioFitter fitter = rawImageObject.GetComponent<AspectRatioFitter>();
                 if (fitter == null)
                 {
@@ -179,10 +172,8 @@ public class PlayVideoAfterText : MonoBehaviour
             }
         }
 
-        // Setup loop point reached callback
         myVideoPlayer.loopPointReached += OnVideoFinished;
 
-        // Prepare video asynchronously
         myVideoPlayer.Prepare();
 
         float timeout = 8f;
@@ -193,7 +184,6 @@ public class PlayVideoAfterText : MonoBehaviour
             yield return null;
         }
 
-        // Reveal video display without any white/blank flicker
         if (rawImageObject != null)
         {
             RawImage rawImage = rawImageObject.GetComponent<RawImage>();

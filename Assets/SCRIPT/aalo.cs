@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class aalo : MonoBehaviour
-{       
+{
     public float distance;
       public Camera fpscam;
       public GameObject note;
@@ -16,7 +16,6 @@ public class aalo : MonoBehaviour
         if (fpscam == null) fpscam = Camera.main;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (fpscam == null) return;
@@ -45,14 +44,12 @@ public class aalo : MonoBehaviour
             }
         }
 
-        // Only deactivate escreen if aalo was the script that activated it
         if (aaloActivatedEscreen)
         {
             if (escreen != null) escreen.SetActive(false);
             aaloActivatedEscreen = false;
         }
     }
-        
 
     }
 

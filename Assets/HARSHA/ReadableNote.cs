@@ -1,11 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-/// <summary>
-/// Attach to any 3D paper mesh, quad, or book in the scene.
-/// Implements IInteractable so PlayerInteraction raycast automatically detects it.
-/// Supports both inline text or external NoteData ScriptableObject assets.
-/// </summary>
 [RequireComponent(typeof(Collider))]
 public class ReadableNote : MonoBehaviour, IInteractable
 {
@@ -50,9 +45,7 @@ public class ReadableNote : MonoBehaviour, IInteractable
 
     private void Awake()
     {
-        // Robust collision for quads and thin meshes:
-        // Quads only have a single-sided polygon that fails raycasts from backfaces or shallow angles.
-        // A BoxCollider with small depth guarantees reliable hit detection from any angle.
+
         MeshCollider meshCol = GetComponent<MeshCollider>();
         if (meshCol != null && (!meshCol.convex || (meshCol.sharedMesh != null && meshCol.sharedMesh.name.ToLower().Contains("quad"))))
         {
@@ -87,7 +80,6 @@ public class ReadableNote : MonoBehaviour, IInteractable
             }
         }
 
-        // Find or auto-create prompt if not assigned in Inspector
         if (hoverText == null)
         {
             hoverText = FindUniversalPrompt();
@@ -97,7 +89,7 @@ public class ReadableNote : MonoBehaviour, IInteractable
 
     private void Start()
     {
-        // Ensure prompt starts hidden
+
         if (hoverText != null)
         {
             hoverText.SetActive(false);
@@ -162,7 +154,6 @@ public class ReadableNote : MonoBehaviour, IInteractable
     {
         if (cachedFallbackPrompt != null) return cachedFallbackPrompt;
 
-        // Find HUD canvas
         Canvas hudCanvas = null;
         Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (Canvas c in canvases)
@@ -222,7 +213,6 @@ public class ReadableNote : MonoBehaviour, IInteractable
         Debug.Log($"[ReadableNote] Interacted with note: '{noteTitle}'");
         if (hoverText != null) hoverText.SetActive(false);
 
-        // Turn off highlight while reading
         OnHoverExit();
 
         if (pickupRustleSound != null)
@@ -252,10 +242,6 @@ public class ReadableNote : MonoBehaviour, IInteractable
         }
     }
 
-    /// <summary>
-    /// Plays the rustle sound from a temporary AudioSource that is cut off
-    /// after rustleDuration seconds, with a short fade-out at the end.
-    /// </summary>
     private void PlayRustle()
     {
         GameObject temp = new GameObject("RustleSound_Temp");
@@ -264,17 +250,15 @@ public class ReadableNote : MonoBehaviour, IInteractable
         AudioSource src = temp.AddComponent<AudioSource>();
         src.clip = pickupRustleSound;
         src.volume = rustleVolume;
-        src.spatialBlend = 1f; // 3D, like PlayClipAtPoint
+        src.spatialBlend = 1f;
         src.Play();
 
-        // Never play longer than the clip itself
         float playTime = Mathf.Min(rustleDuration, pickupRustleSound.length);
 
         RustleFader fader = temp.AddComponent<RustleFader>();
         fader.Init(src, playTime, rustleFadeOutTime);
     }
 
-    // Lives on the temp object, so it keeps working even if the note is disabled/destroyed
     private class RustleFader : MonoBehaviour
     {
         private AudioSource src;

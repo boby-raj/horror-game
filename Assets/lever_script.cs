@@ -1,15 +1,6 @@
 using UnityEngine;
 using TMPro;
 
-/// <summary>
-/// Generator and Lever Script.
-/// - Shows 'NEED FUEL' when player approaches without fuel.
-/// - Shows '[E] to fuel' when player approaches with fuel.
-/// - Powers generator for generatorRunDuration (e.g. 60 seconds).
-/// - Displays countdown timer (HUD/TextMeshPro & atmospheric on-screen UI).
-/// - Automatically shuts off engine and lights when time expires.
-/// - Allows refueling again with another fuel can.
-/// </summary>
 public class lever_script : MonoBehaviour, IInteractable
 {
     [Header("Generator & Lever Controls")]
@@ -25,8 +16,8 @@ public class lever_script : MonoBehaviour, IInteractable
 
     [Header("Fuel Check UI")]
     public lcan can_script;
-    public GameObject open_text;   // 'NEED FUEL'
-    public GameObject close_text;  // '[E] to fuel'
+    public GameObject open_text;
+    public GameObject close_text;
 
     [Header("Timer & Runtime Settings")]
     [Tooltip("How many seconds the generator runs per fuel can")]
@@ -50,32 +41,34 @@ public class lever_script : MonoBehaviour, IInteractable
 
     private bool inarea = false;
     private GUIStyle timerStyle;
+    private readonly System.Collections.Generic.List<Light> sceneLights = new System.Collections.Generic.List<Light>();
+    private readonly System.Collections.Generic.List<FlickeringLight> sceneFlickers = new System.Collections.Generic.List<FlickeringLight>();
+    private LightmapData[] originalLightmaps;
+    private bool lightsResolved = false;
 
     private void Awake()
     {
         ResolveTimerReferences();
+        ResolveLightReferences();
     }
 
     private void Start()
     {
         ResolveTimerReferences();
+        ResolveLightReferences();
 
         if (close_text != null) close_text.SetActive(false);
         if (open_text != null) open_text.SetActive(false);
         if (lev_ui != null) lev_ui.SetActive(false);
         if (timerPanel != null) timerPanel.SetActive(false);
 
-        // If generator is configured to start ON
         if (isRunning)
         {
             if (currentRunTime <= 0f)
             {
                 currentRunTime = generatorRunDuration > 0f ? generatorRunDuration : 9999f;
             }
-            if (alllights != null)
-            {
-                alllights.SetActive(true);
-            }
+            SetGeneratorLights(true);
             if (timerPanel != null)
             {
                 timerPanel.SetActive(true);
@@ -96,9 +89,9 @@ public class lever_script : MonoBehaviour, IInteractable
                 lv_animator.Play(0);
             }
         }
-        else if (alllights != null)
+        else
         {
-            alllights.SetActive(false);
+            SetGeneratorLights(false);
         }
 
         if (grator == null)
@@ -107,10 +100,159 @@ public class lever_script : MonoBehaviour, IInteractable
         }
     }
 
-    /// <summary>
-    /// Auto-resolves timerText if unassigned or if linked as GameObject in scene YAML.
-    /// Preserves the user's chosen text color.
-    /// </summary>
+    public void ResolveLightReferences()
+    {
+        if (originalLightmaps == null || originalLightmaps.Length == 0)
+        {
+            originalLightmaps = LightmapSettings.lightmaps;
+        }
+
+        if (alllights == null)
+        {
+            pointlight[] plScripts = FindObjectsByType<pointlight>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (plScripts != null && plScripts.Length > 0)
+            {
+                alllights = plScripts[0].gameObject;
+            }
+            else
+            {
+                GameObject found = GameObject.Find("pointlightwork");
+                if (found != null) alllights = found;
+            }
+        }
+
+        if (alllights != null)
+        {
+            alllights.SetActive(true);
+            pointlight pl = alllights.GetComponent<pointlight>();
+            if (pl != null)
+            {
+                pl.enabled = false;
+                if (pl.light1 != null)
+                {
+                    pl.light1.SetActive(true);
+                }
+            }
+        }
+
+        GameObject playerFlashlightObj = null;
+        flahlight[] flashlights = FindObjectsByType<flahlight>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        if (flashlights != null && flashlights.Length > 0 && flashlights[0].lightt != null)
+        {
+            playerFlashlightObj = flashlights[0].lightt;
+        }
+
+        sceneLights.Clear();
+        Light[] allSceneLights = FindObjectsByType<Light>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (Light l in allSceneLights)
+        {
+            if (l == null) continue;
+            if (l.type == LightType.Directional) continue;
+            if (playerFlashlightObj != null && (l.gameObject == playerFlashlightObj || l.transform.IsChildOf(playerFlashlightObj.transform))) continue;
+
+            if (IsRedLight(l))
+            {
+                l.enabled = true;
+                continue;
+            }
+
+            if (IsExcludedLight(l.transform)) continue;
+
+            sceneLights.Add(l);
+        }
+
+        sceneFlickers.Clear();
+        FlickeringLight[] allFlickers = FindObjectsByType<FlickeringLight>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (FlickeringLight fl in allFlickers)
+        {
+            if (fl == null) continue;
+            Light flLight = fl.myLight != null ? fl.myLight : fl.GetComponent<Light>();
+            if (flLight != null && IsRedLight(flLight))
+            {
+                fl.enabled = true;
+                continue;
+            }
+            if (IsExcludedLight(fl.transform)) continue;
+            sceneFlickers.Add(fl);
+        }
+
+        lightsResolved = true;
+    }
+
+    private bool IsRedLight(Light l)
+    {
+        if (l == null) return false;
+        Color c = l.color;
+        if (c.r > 0.4f && c.r > c.g * 1.8f && c.r > c.b * 1.8f)
+        {
+            return true;
+        }
+        if (l.gameObject.name.IndexOf("red", System.StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private bool IsExcludedLight(Transform t)
+    {
+        Transform curr = t;
+        while (curr != null)
+        {
+            if (curr.CompareTag("Player") || curr.CompareTag("MainCamera")) return true;
+            if (curr.GetComponent<Camera>() != null || curr.GetComponent<CharacterController>() != null) return true;
+            if (curr.GetComponent<deadcollide>() != null || curr.GetComponent<deadcollide2>() != null) return true;
+            string n = curr.name;
+            if (n.IndexOf("Player", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                n.IndexOf("Camera", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                n.IndexOf("Capsule", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                n.IndexOf("Flashlight", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                n.IndexOf("FlippedTV", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                n.IndexOf("horrorlady", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+            curr = curr.parent;
+        }
+        return false;
+    }
+
+    public void SetGeneratorLights(bool turnOn)
+    {
+        if (!lightsResolved)
+        {
+            ResolveLightReferences();
+        }
+
+        for (int i = 0; i < sceneFlickers.Count; i++)
+        {
+            if (sceneFlickers[i] != null)
+            {
+                sceneFlickers[i].enabled = turnOn;
+            }
+        }
+
+        for (int i = 0; i < sceneLights.Count; i++)
+        {
+            if (sceneLights[i] != null)
+            {
+                sceneLights[i].enabled = turnOn;
+            }
+        }
+
+        if (turnOn)
+        {
+            if (originalLightmaps != null && originalLightmaps.Length > 0)
+            {
+                LightmapSettings.lightmaps = originalLightmaps;
+            }
+        }
+        else
+        {
+            LightmapSettings.lightmaps = new LightmapData[0];
+        }
+    }
+
     public void ResolveTimerReferences()
     {
         if (timerPanel == null)
@@ -145,7 +287,6 @@ public class lever_script : MonoBehaviour, IInteractable
             }
         }
 
-        // Keep the exact text colour the user kept on the UI component
         if (timerText != null)
         {
             timerTextColor = timerText.color;
@@ -154,7 +295,7 @@ public class lever_script : MonoBehaviour, IInteractable
 
     private void Update()
     {
-        // 1. If generator is running, count down remaining time
+
         if (isRunning)
         {
             currentRunTime -= Time.deltaTime;
@@ -167,7 +308,6 @@ public class lever_script : MonoBehaviour, IInteractable
             }
         }
 
-        // 2. Interaction logic when player is near the generator
         if (inarea)
         {
             UpdateInteractionPrompts();
@@ -179,9 +319,6 @@ public class lever_script : MonoBehaviour, IInteractable
         }
     }
 
-    /// <summary>
-    /// Checks whether the player is holding a fuel can.
-    /// </summary>
     public bool HasFuel()
     {
         if (lcan.playerFuelCount > 0) return true;
@@ -191,9 +328,6 @@ public class lever_script : MonoBehaviour, IInteractable
         return false;
     }
 
-    /// <summary>
-    /// Starts the generator and powers on lights and audio.
-    /// </summary>
     public void FuelAndStartGenerator()
     {
         ConsumeFuel();
@@ -201,19 +335,16 @@ public class lever_script : MonoBehaviour, IInteractable
         isRunning = true;
         currentRunTime = generatorRunDuration;
 
-        // Hide prompt texts
         if (close_text != null) close_text.SetActive(false);
         if (open_text != null) open_text.SetActive(false);
         if (lev_ui != null) lev_ui.SetActive(false);
 
-        // Lever animation
         if (lv_animator != null)
         {
             lv_animator.enabled = true;
             lv_animator.Play(0);
         }
 
-        // Engine sound loop
         if (grator != null)
         {
             if (start_sound != null)
@@ -228,19 +359,13 @@ public class lever_script : MonoBehaviour, IInteractable
             }
         }
 
-        // Turn ON all powered lights
-        if (alllights != null)
-        {
-            alllights.SetActive(true);
-        }
+        SetGeneratorLights(true);
 
-        // Notify GeneratorSystem if attached
         if (GeneratorSystem.Instance != null)
         {
             GeneratorSystem.Instance.AddFuel(generatorRunDuration);
         }
 
-        // Show timer UI panel if assigned
         if (timerPanel != null)
         {
             timerPanel.SetActive(true);
@@ -255,9 +380,6 @@ public class lever_script : MonoBehaviour, IInteractable
         Debug.Log($"[Generator] Started! Running for {generatorRunDuration} seconds.");
     }
 
-    /// <summary>
-    /// Adds additional runtime if player refuels while the generator is running.
-    /// </summary>
     public void AddFuelWhileRunning()
     {
         ConsumeFuel();
@@ -292,33 +414,23 @@ public class lever_script : MonoBehaviour, IInteractable
         }
     }
 
-    /// <summary>
-    /// Shuts down the generator when fuel runs out.
-    /// </summary>
     public void StopGenerator()
     {
         currentRunTime = 0f;
         isRunning = false;
 
-        // Turn OFF lights
-        if (alllights != null)
-        {
-            alllights.SetActive(false);
-        }
+        SetGeneratorLights(false);
 
-        // Stop engine sound
         if (grator != null)
         {
             grator.Stop();
         }
 
-        // Optional power-down sound
         if (stop_sound != null)
         {
             AudioSource.PlayClipAtPoint(stop_sound, transform.position);
         }
 
-        // Reset lever animation
         if (lv_animator != null)
         {
             lv_animator.enabled = false;
@@ -336,7 +448,6 @@ public class lever_script : MonoBehaviour, IInteractable
 
         Debug.Log("[Generator] Fuel expired! Generator stopped. Lights turned OFF.");
 
-        // If player is still standing in the generator area, update prompt
         if (inarea)
         {
             if (HasFuel())
@@ -375,7 +486,6 @@ public class lever_script : MonoBehaviour, IInteractable
             int seconds = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) % 60f);
             timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 
-            // Keep the exact text colour the user kept
             timerText.color = timerTextColor;
         }
     }
@@ -457,7 +567,6 @@ public class lever_script : MonoBehaviour, IInteractable
         if (lev_ui != null) lev_ui.SetActive(false);
     }
 
-    // --- IInteractable Implementation (Looking directly at generator/lever with crosshair) ---
     public void OnHoverEnter()
     {
         inarea = true;
@@ -485,7 +594,7 @@ public class lever_script : MonoBehaviour, IInteractable
         }
         else if (!isRunning)
         {
-            // Flash NEED FUEL prompt
+
             if (open_text != null) open_text.SetActive(true);
             if (close_text != null) close_text.SetActive(false);
         }
@@ -493,7 +602,7 @@ public class lever_script : MonoBehaviour, IInteractable
 
     private void OnGUI()
     {
-        // Don't render legacy OnGUI if Canvas timer UI exists or showOnScreenTimer is disabled
+
         if (timerText != null || timerPanel != null) return;
         if (!isRunning || !showOnScreenTimer) return;
 
@@ -508,7 +617,6 @@ public class lever_script : MonoBehaviour, IInteractable
         int minutes = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) / 60f);
         int seconds = Mathf.FloorToInt(Mathf.Max(0f, currentRunTime) % 60f);
 
-        // Flashing effect when low on time (< 15 seconds)
         if (currentRunTime <= 15f)
         {
             bool flash = Mathf.PingPong(Time.time * 3f, 1f) > 0.5f;
@@ -516,7 +624,7 @@ public class lever_script : MonoBehaviour, IInteractable
         }
         else
         {
-            timerStyle.normal.textColor = new Color(0.2f, 1f, 0.4f); // Neon green
+            timerStyle.normal.textColor = new Color(0.2f, 1f, 0.4f);
         }
 
         string text = string.Format("⚡ POWER: {0:00}:{1:00}", minutes, seconds);

@@ -22,7 +22,6 @@ public class jump : MonoBehaviour
     {
         if (player == null) return;
 
-        // Reset vertical velocity when grounded so gravity does not accumulate indefinitely
         if (player.isGrounded && velocity.y < 0)
         {
             velocity.y = -2f;

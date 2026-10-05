@@ -15,38 +15,31 @@ public class IntroManager : MonoBehaviour
     public float timeBetweenLogos = 0.5f;
 
     [Header("Scene Transition")]
-    public string nextSceneName = "MainMenu"; // Change this to your actual next scene
+    public string nextSceneName = "MainMenu";
 
     void Start()
     {
-        // Start the sequence as soon as the scene loads
+
         StartCoroutine(PlayIntroSequence());
     }
 
     private IEnumerator PlayIntroSequence()
     {
-        // 1. Fade In Studio Logo
+
         yield return StartCoroutine(FadeCanvasGroup(studioLogo, 0f, 1f, fadeInDuration));
-        
-        // 2. Wait
+
         yield return new WaitForSeconds(displayDuration);
-        
-        // 3. Fade Out Studio Logo
+
         yield return StartCoroutine(FadeCanvasGroup(studioLogo, 1f, 0f, fadeOutDuration));
-        
-        // 4. Short pause between logos
+
         yield return new WaitForSeconds(timeBetweenLogos);
-        
-        // 5. Fade In Game Logo
+
         yield return StartCoroutine(FadeCanvasGroup(gameLogo, 0f, 1f, fadeInDuration));
-        
-        // 6. Wait
+
         yield return new WaitForSeconds(displayDuration);
-        
-        // 7. Fade Out Game Logo
+
         yield return StartCoroutine(FadeCanvasGroup(gameLogo, 1f, 0f, fadeOutDuration));
 
-        // 8. Load Next Scene
         SceneManager.LoadScene(nextSceneName);
     }
 
@@ -59,6 +52,6 @@ public class IntroManager : MonoBehaviour
             cg.alpha = Mathf.Lerp(startAlpha, endAlpha, elapsedTime / duration);
             yield return null;
         }
-        cg.alpha = endAlpha; // Ensure it reaches the exact target alpha
+        cg.alpha = endAlpha;
     }
 }

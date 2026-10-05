@@ -2,19 +2,13 @@ using UnityEngine;
 using UnityEngine.Playables;
 using Unity.Cinemachine;
 
-/// <summary>
-/// Controls the waking up sequence:
-/// 1. Freezes player movement and mouse look during the cutscene.
-/// 2. Smoothly fades in from black (eyes opening effect).
-/// 3. Re-enables player movement, mouse look, and hands full control to the player when the wake-up finishes.
-/// </summary>
 public class OpeningManager : MonoBehaviour
 {
     [Header("Timeline Director")]
     public PlayableDirector timelineDirector;
 
     [Header("Player Scripts to Freeze")]
-    public MonoBehaviour playerMovementScript; 
+    public MonoBehaviour playerMovementScript;
     public MonoBehaviour playerLookScript;
     public CinemachineBrain mainCameraBrain;
 
@@ -60,14 +54,12 @@ public class OpeningManager : MonoBehaviour
     {
         AutoFindReferences();
 
-        // Ensure director plays from time 0
         if (timelineDirector != null)
         {
             timelineDirector.time = 0;
             timelineDirector.Play();
         }
 
-        // Freeze player movement and mouse look at the start of cutscene
         if (playerMovementScript != null)
         {
             playerMovementScript.enabled = false;
@@ -81,7 +73,7 @@ public class OpeningManager : MonoBehaviour
 
     void Update()
     {
-        // Safety check: if timeline finished or reached end, unlock controls
+
         if (!controlsUnlocked && timelineDirector != null)
         {
             if (timelineDirector.time >= timelineDirector.duration - 0.05 && timelineDirector.time > 1.0)
@@ -131,14 +123,12 @@ public class OpeningManager : MonoBehaviour
         if (controlsUnlocked) return;
         controlsUnlocked = true;
 
-        // Smoothly align player orientation to cutscene camera direction
         if (Camera.main != null && playerMovementScript != null)
         {
             Vector3 euler = Camera.main.transform.eulerAngles;
             playerMovementScript.transform.rotation = Quaternion.Euler(0f, euler.y, 0f);
         }
 
-        // 1. Give player their movement and look control back
         if (playerMovementScript != null)
         {
             playerMovementScript.enabled = true;
@@ -148,8 +138,7 @@ public class OpeningManager : MonoBehaviour
         {
             playerLookScript.enabled = true;
         }
-        
-        // 2. Shut down Cinemachine Brain so player's camera takes full direct control
+
         if (mainCameraBrain != null)
         {
             mainCameraBrain.enabled = false;

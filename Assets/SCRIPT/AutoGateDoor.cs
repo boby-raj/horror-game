@@ -4,12 +4,12 @@ using System.Collections;
 public class AutoGateDoor : MonoBehaviour
 {
     [Header("Gate Movement")]
-    public Transform gate;              // The actual door/gate mesh to rotate or move
+    public Transform gate;
     public float openAngle = 90f;
     public float speed = 2f;
 
     [Header("Timing")]
-    public float autoCloseDelay = 3f;   // Seconds before it closes after opening
+    public float autoCloseDelay = 3f;
 
     private Quaternion closedRotation;
     private Quaternion openRotation;
@@ -33,7 +33,7 @@ bool Is_gateclose;
 
     void Update()
     {
-        // Smoothly move toward whatever the current target is (open or closed)
+
         gate.rotation = Quaternion.Slerp(gate.rotation, targetRotation, Time.deltaTime * speed);
     }
 
@@ -52,7 +52,6 @@ bool Is_gateclose;
     {
         targetRotation = openRotation;
 
-        // If it was already about to close, cancel that and restart the timer
         if (closeRoutine != null)
             StopCoroutine(closeRoutine);
 
@@ -66,6 +65,6 @@ bool Is_gateclose;
         targetRotation = closedRotation;
         closeRoutine = null;
          audioSource.PlayOneShot(gateopening);
-         
+
     }
 }

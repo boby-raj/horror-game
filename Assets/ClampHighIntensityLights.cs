@@ -5,8 +5,8 @@ using UnityEditor.SceneManagement;
 
 public static class ClampHighIntensityLights
 {
-    private const float Threshold = 50f; // any light with intensity above this will be clamped
-    private const float NewIntensity = 10f; // target intensity
+    private const float Threshold = 50f;
+    private const float NewIntensity = 10f;
 
     [MenuItem("Tools/Lighting/Clamp High Intensity Lights (set >50 -> 10 and clear cookies)")]
     public static void ClampLights()
@@ -15,7 +15,7 @@ public static class ClampHighIntensityLights
         int changed = 0;
         foreach (var l in lights)
         {
-            // skip assets and editor-only lights
+
             if (EditorUtility.IsPersistent(l) || l.gameObject == null)
                 continue;
 

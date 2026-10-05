@@ -3,18 +3,6 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Rendering;
 
-/// <summary>
-/// One-click baked lighting fixer.
-/// Go to: Tools → Setup Baked Lighting (Mixed Mode)
-/// 
-/// What this does:
-/// - Sets all lights to MIXED mode (pre-baked shadows + always visible direct light)
-/// - Marks all MeshRenderers as Contribute GI so they receive baked light
-/// - Sets sensible lightmap resolution settings
-/// - Clears old broken bake data
-/// 
-/// After running this, go to Window → Rendering → Lighting → Generate Lighting
-/// </summary>
 public class LightingFixer : EditorWindow
 {
     [MenuItem("Tools/Setup Baked Lighting (Mixed Mode)")]
@@ -23,7 +11,6 @@ public class LightingFixer : EditorWindow
         int lightCount = 0;
         int meshCount = 0;
 
-        // ── Step 1: Set all lights to Mixed ──────────────────────────────────
         Light[] allLights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
 
         foreach (Light light in allLights)
@@ -34,9 +21,6 @@ public class LightingFixer : EditorWindow
             lightCount++;
         }
 
-        // ── Step 2: Mark all MeshRenderers as Contribute GI ──────────────────
-        // This is THE most common reason baked lights are invisible —
-        // objects must be marked Static/ContributeGI to receive baked lightmaps
         MeshRenderer[] allRenderers = Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None);
 
         foreach (MeshRenderer renderer in allRenderers)
@@ -50,18 +34,16 @@ public class LightingFixer : EditorWindow
             meshCount++;
         }
 
-        // ── Step 3: Set sensible lightmap bake settings ───────────────────────
         LightingSettings settings = new LightingSettings();
-        settings.lightmapper = LightingSettings.Lightmapper.ProgressiveGPU; // GPU bake = faster
+        settings.lightmapper = LightingSettings.Lightmapper.ProgressiveGPU;
         settings.directSampleCount = 32;
         settings.indirectSampleCount = 128;
-        settings.lightmapResolution = 20f;    // Good quality without huge file size
-        settings.lightmapMaxSize = 1024;      // 1024 is fine for horror games
-        settings.ao = true;                   // Ambient Occlusion for realism
+        settings.lightmapResolution = 20f;
+        settings.lightmapMaxSize = 1024;
+        settings.ao = true;
         settings.aoMaxDistance = 1f;
         Lightmapping.lightingSettings = settings;
 
-        // ── Step 4: Clear old broken bake ────────────────────────────────────
         Lightmapping.ClearLightingDataAsset();
         Lightmapping.Clear();
 

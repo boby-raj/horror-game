@@ -4,12 +4,6 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-/// <summary>
-/// Fixes the Unity USD package bug where building a second time into the same folder
-/// fails with: IOException: Failed to Copy File / Directory from '...com.unity.formats.usd...'
-/// Runs at callbackOrder 0 (before UsdBuildPostProcess which runs at order 1) to clean up
-/// existing USD plugin files in the output directory before Unity tries to copy them again.
-/// </summary>
 public static class BuildFixer
 {
     [PostProcessBuild(0)]

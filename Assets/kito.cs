@@ -40,7 +40,7 @@ public class RampFollower : MonoBehaviour
 
     void Start()
     {
-        // Start playing chase sound/music loop automatically
+
         if (chaseAudioSource != null && !chaseAudioSource.isPlaying)
         {
             chaseAudioSource.loop = true;
@@ -52,11 +52,9 @@ public class RampFollower : MonoBehaviour
     {
         if (player == null || controller == null || isCaught) return;
 
-        // 1. Calculate horizontal direction to player
         Vector3 flatDirection = (player.position - transform.position);
         flatDirection.y = 0f;
 
-        // --- CATCH CHECK ---
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
         if (distanceToPlayer <= catchDistance)
         {
@@ -64,17 +62,14 @@ public class RampFollower : MonoBehaviour
             return;
         }
 
-        // 2. Rotate smoothly around Y-axis only (no body tilting)
         if (flatDirection.sqrMagnitude > 0.01f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(flatDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
 
-        // Lock X and Z rotation (100% vertical guarantee)
         transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, 0f);
 
-        // 3. Project movement along ramp surface slope
         Vector3 moveDirection = flatDirection.normalized;
 
         if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 1.5f, groundLayer))
@@ -82,7 +77,6 @@ public class RampFollower : MonoBehaviour
             moveDirection = Vector3.ProjectOnPlane(moveDirection, hit.normal).normalized;
         }
 
-        // 4. Compute final velocity & ground sticking
         Vector3 finalVelocity = moveDirection * speed;
 
         if (controller.isGrounded)
@@ -96,7 +90,6 @@ public class RampFollower : MonoBehaviour
 
         finalVelocity.y += verticalVelocity;
 
-        // 5. Apply Movement
         controller.Move(finalVelocity * Time.deltaTime);
     }
 
@@ -104,26 +97,21 @@ public class RampFollower : MonoBehaviour
     {
         isCaught = true;
 
-        // Freeze controller movement
         if (controller != null) controller.enabled = false;
 
-        // Freeze Player Controls
         if (playerController != null) playerController.enabled = false;
         if (playerMovementScript != null) playerMovementScript.enabled = false;
 
-        // Audio Transition
         if (chaseAudioSource != null) chaseAudioSource.Stop();
         if (jumpscareAudioSource != null) jumpscareAudioSource.Play();
 
-        // --- SNAP GHOST RIGHT UP TO PLAYER'S FACE ---
         if (playerCamera != null)
         {
-            // Calculate point right in front of camera
+
             Vector3 facePosition = playerCamera.position + (playerCamera.forward * faceDistance);
-            facePosition.y = playerCamera.position.y - 0.4f; // Align height
+            facePosition.y = playerCamera.position.y - 0.4f;
             transform.position = facePosition;
 
-            // Face camera directly
             Vector3 lookDir = (playerCamera.position - transform.position).normalized;
             lookDir.y = 0;
             if (lookDir != Vector3.zero)
@@ -132,7 +120,6 @@ public class RampFollower : MonoBehaviour
             }
         }
 
-        // --- CAMERA LOCK & SCARY VIBRATION ---
         float timer = 0f;
         Vector3 originalCamPos = playerCamera != null ? playerCamera.localPosition : Vector3.zero;
 
@@ -142,7 +129,7 @@ public class RampFollower : MonoBehaviour
 
             if (playerCamera != null)
             {
-                // Lock camera orientation right onto the ghost's eyes
+
                 Vector3 ghostFacePos = transform.position + Vector3.up * 1.5f;
                 Vector3 lookAtGhost = (ghostFacePos - playerCamera.position).normalized;
                 if (lookAtGhost != Vector3.zero)
@@ -150,19 +137,16 @@ public class RampFollower : MonoBehaviour
                     playerCamera.rotation = Quaternion.LookRotation(lookAtGhost);
                 }
 
-                // Rapid camera shake / vibration
                 playerCamera.localPosition = originalCamPos + Random.insideUnitSphere * vibrationIntensity;
             }
 
             yield return null;
         }
 
-        // Reset Camera Offset
         if (playerCamera != null) playerCamera.localPosition = originalCamPos;
 
         yield return new WaitForSeconds(delayBeforeRespawn);
 
-        // Respawn / Reload Scene
         if (SaveManager.Instance != null)
         {
             SaveManager.Instance.RespawnPlayer();

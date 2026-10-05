@@ -1,6 +1,6 @@
 
 using UnityEngine;
- 
+
 public class uiscript : MonoBehaviour
 {
     public static string actiontxt;
@@ -8,10 +8,9 @@ public class uiscript : MonoBehaviour
     public static bool uiactive;
     [SerializeField] GameObject box;
     [SerializeField] GameObject commsnd;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     [SerializeField] GameObject crosshair;
 
-    // Update is called once per frame
     void Update()
     {
         if (uiactive == true)
@@ -26,7 +25,7 @@ public class uiscript : MonoBehaviour
                box.SetActive(false);
         commsnd.SetActive(false);
         crosshair.SetActive(false);
-            
+
         }
     }
 }

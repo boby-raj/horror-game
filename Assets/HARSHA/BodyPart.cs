@@ -1,5 +1,5 @@
 using UnityEngine;
-using TMPro; // Required for TextMeshPro
+using TMPro;
 
 [RequireComponent(typeof(Renderer))]
 public class BodyPart : MonoBehaviour, IInteractable
@@ -21,7 +21,7 @@ public class BodyPart : MonoBehaviour, IInteractable
     private WallPuzzleManager puzzleManager;
     private Renderer meshRenderer;
     private Material partMaterial;
-    
+
     private Color originalEmissionColor;
     private bool originallyHadEmission;
 
@@ -30,7 +30,6 @@ public class BodyPart : MonoBehaviour, IInteractable
         puzzleManager = Object.FindFirstObjectByType<WallPuzzleManager>();
         meshRenderer = GetComponent<Renderer>();
 
-        // Material setup for the glow
         if (meshRenderer != null)
         {
             partMaterial = meshRenderer.material;
@@ -41,7 +40,6 @@ public class BodyPart : MonoBehaviour, IInteractable
             }
         }
 
-        // Ensure the text prompt is hidden when the game starts
         if (promptTextUI != null)
         {
             promptTextUI.gameObject.SetActive(false);
@@ -52,8 +50,7 @@ public class BodyPart : MonoBehaviour, IInteractable
     {
         if (puzzleManager != null)
         {
-            // Hide the text right before we collect/destroy the object
-            // so the text doesn't get permanently stuck on the screen
+
             if (promptTextUI != null)
             {
                 promptTextUI.gameObject.SetActive(false);
@@ -69,14 +66,13 @@ public class BodyPart : MonoBehaviour, IInteractable
 
     public void OnHoverEnter()
     {
-        // 1. Turn on the glow
+
         if (partMaterial != null)
         {
             partMaterial.EnableKeyword("_EMISSION");
             partMaterial.SetColor("_EmissionColor", glowColor);
         }
 
-        // 2. Show the text prompt
         if (promptTextUI != null)
         {
             promptTextUI.text = hoverMessage;
@@ -86,29 +82,26 @@ public class BodyPart : MonoBehaviour, IInteractable
 
     public void OnHoverExit()
     {
-        // 1. Revert the glow
+
         if (partMaterial != null)
         {
             if (!originallyHadEmission)
             {
                 partMaterial.DisableKeyword("_EMISSION");
             }
-            
+
             if (partMaterial.HasProperty("_EmissionColor"))
             {
                 partMaterial.SetColor("_EmissionColor", originalEmissionColor);
             }
         }
 
-        // 2. Hide the text prompt
         if (promptTextUI != null)
         {
             promptTextUI.gameObject.SetActive(false);
         }
     }
 
-    // Failsafe: If the object is destroyed or disabled while you are still looking at it, 
-    // this ensures the text doesn't get stuck on your screen forever.
     private void OnDisable()
     {
         if (promptTextUI != null && promptTextUI.gameObject.activeSelf)
