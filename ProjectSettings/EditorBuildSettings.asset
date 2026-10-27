@@ -18,11 +18,8 @@ EditorBuildSettings:
     path: Assets/finalmapdone.unity
     guid: e14b822fbf09fc143bc720e9c61c8430
   - enabled: 1
-    path: Assets/end.unity
-    guid: 3dfb2224f2e756b48ae3aab28219c524
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/exit.unity
+    guid: d5107db3ca87cd84bac711f508935d99
   - enabled: 0
     path: Assets/Scenes/enemy trail.unity
     guid: c2e0adc5dd563d149a0eba953afc2139

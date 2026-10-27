@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Renderer))]
 public class WallPuzzleManager : MonoBehaviour, IInteractable
@@ -12,6 +13,8 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
     [Header("Puzzle Status")]
     public int totalPartsRequired = 6;
     public GameObject lockedDoor;
+    [Header("Completion")]
+    [SerializeField] private string completionScene = "exit";
 
     [Header("Glow Settings")]
     [ColorUsage(true, true)]
@@ -32,6 +35,7 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
 
     private List<int> partsHeldByPlayer = new List<int>();
     private int totalPlaced = 0;
+    private readonly HashSet<int> placedPartIds = new HashSet<int>();
 
     private Renderer meshRenderer;
     private Material wallMaterial;
@@ -72,7 +76,7 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
         {
             foreach (int id in partsHeldByPlayer)
             {
-                if (id >= 0 && id < partsOnWall.Length)
+                if (id >= 0 && id < partsOnWall.Length && partsOnWall[id] != null && placedPartIds.Add(id))
                 {
                     partsOnWall[id].SetActive(true);
                     totalPlaced++;
@@ -152,6 +156,16 @@ public class WallPuzzleManager : MonoBehaviour, IInteractable
 
         if (mainPromptUI != null) mainPromptUI.gameObject.SetActive(false);
         if (puzzleCompleteUI != null) puzzleCompleteUI.gameObject.SetActive(true);
+
+        if (!string.IsNullOrWhiteSpace(completionScene))
+        {
+            if (Application.CanStreamedLevelBeLoaded(completionScene))
+            {
+                Time.timeScale = 1f;
+                SceneManager.LoadScene(completionScene);
+            }
+            else Debug.LogError($"Puzzle completion scene '{completionScene}' is not enabled in Build Settings.", this);
+        }
     }
 
     private void ShowFeedback(string message, float duration)

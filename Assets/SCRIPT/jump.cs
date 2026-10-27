@@ -7,6 +7,7 @@ public class jump : MonoBehaviour
     public float speed = 10f;
     public float gravity = 9.8f;
 
+    public AudioSource audiosource;
     Vector3 velocity;
     float k = 1f;
 
@@ -32,11 +33,13 @@ public class jump : MonoBehaviour
 
         if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift))
         {
-            k = 1.5f;
+            k = 1.5f; 
         }
         else
         {
             k = 1f;
+          
+           
         }
 
         Vector3 move = transform.right * x + transform.forward * z;
